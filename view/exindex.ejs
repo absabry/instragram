@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Search engine</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+    <h2 class="connection"> <%= connection %> </h2>
+    <form action="/" method="post">
+        <h2> Create mongodb connexion</h2>
+        <input type="query" name="path" id="path" placeholder="Path to mongo ex: C:\Mongo\db\bin" >
+        <p><input type="checkbox" name="recreate" class="checkbox" /> (Re)-create the database file to vizualize it?</p>
+        <button type="submit" id="submit" class="button">CREATE!</button>
+    </form>
+
+
+
+    <form action="/search" method="post">
+        <h2> Search by</h2>
+        <div>
+            <input type="query" name="places" id="places" placeholder="Places" >
+        </div>
+        <div>
+            <input type="query" name="companies" id="companies" placeholder="Companies">
+        </div>
+        <div>
+            <input type="query"  name="topics" id="topics"   placeholder="Topics">
+        </div>
+        <div>
+            <input type="query" name="title" id="title" placeholder="Title">
+        </div>
+        <div>
+            <input type="query" name="the_body" id="text" placeholder="Text">
+        </div>
+        <button type="submit" id="submit" class="button">GO!</button>
+    </form>
+    <form action="/auto" method="post">
+        <h2> Auto select</h2>
+        <div>
+            <SELECT name="query" type="query" id="select" size="1">
+                <OPTION value='{
+                    "agg":0,
+                    "query" :{
+                        "places": "brazil"
+                    },
+                    "project":{}
+                    }'> Les articles paruent au Brazil </OPTION>
+                    <OPTION value='{
+                        "agg":0,
+                        "query" : {
+                            "date":{
+                                "$gt":"1-MAR-1987 04:50:00"}
+                            },
+                            "project":{}
+                        }'>Les articles paruent avant le 1er Mars 1987 a 4h50 </OPTION>
+                        <OPTION value='{
+                            "agg":0,
+                            "query":{
+                                "$or" : [
+                                {"text.title" : {"$regex" : "oil", "$options" : "i"}},
+                                {"text.body" :{"$regex" : "oil", "$options" : "i"}}
+                                ]
+                            },
+                            "project":{}
+                        }'>Les articles qui contiennent les mots 'oil'</OPTION>
+                        <OPTION value='{
+                            "agg":0,
+                            "query":{
+                                "$or" : [
+                                {"text.title" : {"$regex" : "coffee", "$options" : "i"}},
+                                {"text.body" :{"$regex" : "coffee", "$options" : "i"}}
+                                ]
+                            },
+                            "project":{}
+                        }'>Les articles dont le contiennent le mot 'coffee'</OPTION>
+                        <OPTION value='
+                        {
+                            "agg":1,
+                            "match":{"$match" : {"topics" : "cocoa"}},
+                            "project":{},
+                            "group":{"$group" : {"_id" : {"places" : "$places", "date" : "$date"}, "count" : {"$sum" : 1}}},
+                            "sort":{ "$sort" : {"date":1} }
+                        }'>Les articles dont les topics contiennent le mot'cocoa' triée par date et lieux</OPTION>
+                        <OPTION value='{
+                            "agg":1,
+                            "match":{"$match" : {"places" : "usa"}},
+                            "project":{},
+                            "group":{"$group" : {"_id" : {"places" : "$places", "date" : "$date"},"count":{"$sum":1}}},
+                            "sort":{ "$sort" : {"date":1}}
+                        }'>Les articles paruent aux Etats-Unis triée par date</OPTION>
+                    </SELECT>
+                </div>
+                <button type="submit" id="submit" class="button">GO!</button>
+    </form>
+
+
+</body>
+</html>

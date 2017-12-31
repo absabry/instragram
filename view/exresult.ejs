@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Search engine</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
+</head>
+<body>
+    <h2 class="title">Detailed results</h2>
+    <form action="/json" method="post">
+        <button type="submit" id="submit" class="button">GET JSON</button>
+    </form>
+    <% if(result.length != 0){ %>
+    <table>
+        <% if(agg==0){ %>
+        <th> Date </th>
+        <th> Title </th>
+        <th> Body </th>
+        <% }else{ %>
+            <th> Places </th>
+            <th> Date </th>
+            <th> Count </th>
+        <% } %>
+        <% for(var i=0; i < result.length; i++) { %>
+            <tr>
+                <% if(agg==0){ %>
+                <td><%= result[i].date%></td>
+                <td><%= result[i].text.title%></td>
+                <td class="body"><%= result[i].text.body%></td>
+                <% }else{ %>
+                    <td><%= result[i]._id.places%></td>
+                    <td><%= result[i]._id.date%></td>
+                    <td><%= result[i].count%></td>
+                <% } %>
+            </tr>
+        <% } %>
+    </table>
+    <% }else{ %>
+            <h2>There are no results for your request!</h2>
+    <% }%>
+</body>
+</html>
