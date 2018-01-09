@@ -1,0 +1,81 @@
+{
+    "_id" : ObjectId("5a48e6b6bdf2ea632c6c20f7"),
+    "idUser" : NumberInt(10001198),
+    "nbSejour" : NumberInt(27),
+    "nbJours" : NumberInt(52),
+    "nbPays" : NumberInt(3),
+    "historique" : [
+        {
+            "idLocation" : NumberInt(279524578),
+            "name" : "Rue du Nil"
+        }
+    ],
+    "photos" : [
+
+    ],
+    "nbImages" : NumberInt(1),
+    "nbTotalImages" : NumberInt(1),
+    "nationality" : "France"
+}
+{
+    "_id" : ObjectId("5a48e6b6bdf2ea632c6c20f8"),
+    "idUser" : NumberInt(1000090968),
+    "nbSejour" : NumberInt(8),
+    "nbJours" : NumberInt(25),
+    "nbPays" : NumberInt(1),
+    "historique" : [
+        {
+            "idLocation" : NumberInt(152778),
+            "name" : "Pont Neuf"
+        },
+        {
+            "idLocation" : NumberInt(152778),
+            "name" : "Pont Neuf"
+        }
+    ],
+    "photos" : [
+        {
+            "dateCreation" : "2014-06-21 20:14:53",
+            "idLocation" : NumberInt(152778),
+            "name" : "Pont Neuf",
+            "coords" : {
+                "type" : "Point",
+                "coordinates" : [
+                    2.341182232,
+                    48.857006997
+                ]
+            },
+            "rating" : 4.5,
+            "type" : [
+                "food",
+                "store",
+                "point_of_interest",
+                "establishment"
+            ],
+            "address" : "Carrousel du Louvre, 99 Rue de Rivoli, Paris"
+        },
+        {
+            "dateCreation" : "2014-06-21 20:16:03",
+            "idLocation" : NumberInt(152778),
+            "name" : "Pont Neuf",
+            "coords" : {
+                "type" : "Point",
+                "coordinates" : [
+                    2.341182232,
+                    48.857006997
+                ]
+            },
+            "rating" : 4.5,
+            "type" : [
+                "food",
+                "store",
+                "point_of_interest",
+                "establishment"
+            ],
+            "address" : "Carrousel du Louvre, 99 Rue de Rivoli, Paris"
+        }
+    ],
+    "nbImages" : NumberInt(2),
+    "nbTotalImages" : NumberInt(2),
+    "nationality" : "France"
+}
