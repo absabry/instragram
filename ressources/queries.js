@@ -1,4 +1,4 @@
-use instagram; 
+use instagram;
 
 
 //-----------------------------------------------------------------------------------------FILTER FORM------------------------------------------------------------------------------------------//
@@ -34,17 +34,29 @@ db.instagramers.find({
 db.instagramers.find({"nbPays":2,"infos.nbTotalImages":10},{"_id":0,"idUser":1,"photos.name":1,"photos.idLocation":1})
 
 
-
-
-
 //-----------------------------------------------------------------------------------------QUERIES------------------------------------------------------------------------------------------//
-// first query 
+// first query
 db.instagramers.distinct("nationality")
 db.instagramers.aggregate([
                      { $group: { "_id": "$nationality", "nb":{$sum:1}}},
                      { $project: {_id:0,nationality: "$_id",count:"$nb"}},
                      { $sort: { "count": -1}}
-                   ])  
+                   ])
+
+var nums = db.instagramers.count();
+
+
+db.collection.aggregate(
+    [
+        { $group: { "_id": "$nationality", "count":{$sum:1}}},    
+        { "$project": { 
+            "count": 1, 
+            "percentage": { 
+                "$concat": [ { "$substr": [ { "$multiply": [ { "$divide": [ "$count", {"$literal": nums }] }, 100 ] }, 0,2 ] }, "", "%" ]}
+            }
+        }
+    ]
+)
 
 
 // second query
@@ -86,8 +98,3 @@ db.instagramers.find({ "photos" : { $size: 0 }},{"nbImages":1}).sort({age:+1}).l
 
 
 db.instagramers.find({"idUser":647057})
-
-
-
-
-

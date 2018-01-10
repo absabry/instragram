@@ -18,7 +18,6 @@
   <!-- Custom styles for this template-->
   <link href="css/style.css" rel="stylesheet">
   <!--charts -->
-  <!-- <script type="text/javascript" src="js/canvasjs-2.0/canvasjs.min.js"></script> -->
   <script src="vendor/chart.js/Chart.min.js"></script>
 </head>
 
@@ -63,248 +62,212 @@
     <div class="container-fluid">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Users</li>
+        <li class="brea dcrumb-item active">Users</li>
       </ol>
-      <hr class="sep">
-      <!-- create the query here-->
-      <div class="card mb-3">
-          <div class="card-header">QUERY</div>
-          <div class="card-body">
-            <p> You may filter users with some basic filter in this form. For more complex queries, please refer to the dropbox in the second section below. </p>
-            <h6><i> Instagramer informations</i> </h6>
-            <form action="/users" method="post">
-              <div class="form-row">
-                <div class="form-group col-md-3">
-                  <label for="country">User's country</label>
-                  <input type="text" class="form-control" name="country" id="country" placeholder="France">
-                </div>
-                <div class="form-group col-md-2">
-                  <label for="nbCountry">Number of user visited country</label>
-                  <input type="text" class="form-control" name="nbCountry" id="nbCountry" placeholder="2">
-                </div>
-                <div class="form-group col-md-2">
-                  <label for="totImgs">Number of user's total images</label>
-                  <input type="text" class="form-control" name="totImgs" id="totImgs" placeholder="10">
-                </div>
-                <div class="form-group col-md-2">
-                  <label for="junImgs">Number of user's June images</label>
-                  <input type="text" class="form-control" name="junImgs" id="junImgs" placeholder="3">
-                </div>
-                <div class="form-group col-md-3">
-                  <label for="visitedName">Location's name user have visited at least once</label>
-                  <input type="text" class="form-control" name="visitedName" id="visitedName" placeholder="Fontaine des Innocents">
-                </div>
-
-              </div>
-              <hr>
-              <h6><i> Instagramer's june photographies (having at least one that match with filters) </i> </h6>
-              <div class="form-row">
-                <div class="form-group col-md-2">
-                  <label for="address">Location's address</label>
-                  <input type="text" class="form-control" name="address" id="address" placeholder="2 Route du Champ de Manoeuvre, Paris">
-                </div>
-                <div class="form-group col-md-2">
-                  <label for="name">Location's name</label>
-                  <input type="text" class="form-control" name="name" id="name" placeholder="Parc Floral de Paris">
-                </div>
-                <div class="form-group col-md-2">
-                  <label for="date">Photography's date</label>
-                  <input type="text" class="form-control" name="date" id="date" placeholder="2014-06-21 20:14:53">
-                </div>
-                <div class="form-group col-md-2">
-                  <label for="coord">Photography's coordinates</label>
-                  <input type="text" class="form-control" name="coord" id="coord" placeholder="48.8354904,2.4501494">
-                </div>
-                <div class="form-group col-md-1">
-                  <label for="coord">Radius</label>
-                  <input type="text" class="form-control" name="radius" id="radius" placeholder="200">
-                </div>
-                <div class="form-group col-md-2">
-                  <label for="type">Monument type</label>
-                  <input type="text" class="form-control" name="type" id="type" placeholder="point_of_interest">
-                </div>
-                <div class="form-group col-md-1">
-                  <label for="rating">Rate (greater)</label>
-                  <input type="text" class="form-control" name="rating" id="rating" placeholder="3.9">
-                </div>
-              </div>
-              <div class="col text-center">
-                  <button type="submit" class="btn btn-primary">Launch query</button>
-              </div>
-              </form>
-          </div>
-          <div class="card-footer small text-muted"> Table of <b>instagramers</b> having at least one match with filters.</div>
-      </div>
-      <hr class="sep">
-      <div class="card mb-3">
-          <div class="card-header">PREPARED QUERY</div>
-          <div class="card-body">
-              <p> This is the second section, where you can choose any of our prepared queries to execute. </p>
-              <form action="/users" method="post">
-                <div class="form-group">
-                  <label for="query">Prepared queries:</label>
-                  <select class="form-control" name="query" id="query" onchange="this.form.submit()">
-                    <option value=''>None</option>
-                    <option value=
-                    '{
-                        "agg":1,
-                        "query": [
-                        {"$group": { "_id": "$nationality", "nb":{"$sum":1}}},
-                        {"$project": {"_id":0,"nationality": "$_id","count":"$nb"}},
-                        {"$sort": { "count": -1}}
-                        ]
-                      }'
-                      >Quelle est l'origine des utilisateurs les plus fréquent sur Paris au mois Juin 2014?</option>
-                  </select>
-                  <br>
-                </div>
-              </form>
-          </div>
-          <div class="card-footer small text-muted"> Table having <b>prepared queries</b> to be executed directly.</div>
-
-
-      <!-- results of the query here-->
-      <% if(queried==1){ %>
-          <br>
+      <div id="loading" style="display:none; width:100%; height:100%"> <img src="images/loading.gif" style="width:45%; margin-left: auto;margin-right: auto; display: block;"/></div>
+      <div id="content">
           <hr class="sep">
-          <% if(error!=null){%>
-            <h6><font color="red"> <%= error %></font> <h6>
-          <% }%>
+          <!-- create the query here-->
           <div class="card mb-3">
-           <div class="card-header">
-             <i class="fa fa-table"></i> RESULTS</div>
-           <div class="card-body">
-             <div class="table-responsive">
-               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                 <thead>
+              <div class="card-header">QUERY</div>
+              <div class="card-body">
+                <p> You may filter users with some basic filter in this form. For more complex queries, please refer to the dropbox in the second section below. </p>
+                <h6><i> Instagramer informations</i> </h6>
+                <form action="/users" method="post" id="form">
+                  <div class="form-row">
+                    <div class="form-group col-md-3">
+                      <label for="country">User's country</label>
+                      <input type="text" class="form-control" name="country" id="country" placeholder="France">
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label for="nbCountry">Number of user visited country</label>
+                      <input type="text" class="form-control" name="nbCountry" id="nbCountry" placeholder="2">
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label for="totImgs">Number of user's total images</label>
+                      <input type="text" class="form-control" name="totImgs" id="totImgs" placeholder="10">
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label for="junImgs">Number of user's June images</label>
+                      <input type="text" class="form-control" name="junImgs" id="junImgs" placeholder="3">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="visitedName">Location's name user have visited at least once</label>
+                      <input type="text" class="form-control" name="visitedName" id="visitedName" placeholder="Fontaine des Innocents">
+                    </div>
+
+                  </div>
+                  <hr>
+                  <h6><i> Instagramer's june photographies (having at least one that match with filters) </i> </h6>
+                  <div class="form-row">
+                    <div class="form-group col-md-2">
+                      <label for="address">Location's address</label>
+                      <input type="text" class="form-control" name="address" id="address" placeholder="2 Route du Champ de Manoeuvre, Paris">
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label for="name">Location's name</label>
+                      <input type="text" class="form-control" name="name" id="name" placeholder="Parc Floral de Paris">
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label for="date">Photography's date</label>
+                      <input type="text" class="form-control" name="date" id="date" placeholder="2014-06-21 20:14:53">
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label for="coord">Photography's coordinates</label>
+                      <input type="text" class="form-control" name="coord" id="coord" placeholder="48.8354904,2.4501494">
+                    </div>
+                    <div class="form-group col-md-1">
+                      <label for="coord">Radius</label>
+                      <input type="text" class="form-control" name="radius" id="radius" placeholder="200">
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label for="type">Monument type</label>
+                      <input type="text" class="form-control" name="type" id="type" placeholder="point_of_interest">
+                    </div>
+                    <div class="form-group col-md-1">
+                      <label for="rating">Rate (greater)</label>
+                      <input type="text" class="form-control" name="rating" id="rating" placeholder="3.9">
+                    </div>
+                  </div>
+                  <div class="col text-center">
+                      <button type="submit" class="btn btn-primary">Launch query</button>
+                  </div>
+                  </form>
+              </div>
+              <div class="card-footer small text-muted"> Table of <b>instagramers</b> having at least one match with filters.</div>
+          </div>
+          <hr class="sep">
+          <div class="card mb-3">
+              <div class="card-header">PREPARED QUERY</div>
+              <div class="card-body">
+                  <p> This is the second section, where you can choose any of our prepared queries to execute. </p>
+                  <form action="/users" method="post" id="secForm">
+                    <div class="form-group">
+                      <label for="query">Prepared queries:</label>
+                      <select class="form-control" name="query" id="query" onchange="submity3m();">
+                        <option value=''>None</option>
+                        <option value=
+                        '{
+                            "agg":1,
+                            "query": [
+                            {"$group": { "_id": "$nationality", "nb":{"$sum":1}}},
+                            {"$project": {"_id":0,"nationality": "$_id","count":"$nb"}},
+                            {"$sort": { "count": -1}}
+                            ]
+                          }'
+                          >Quelle est l'origine des utilisateurs les plus fréquent sur Paris au mois Juin 2014?</option>
+                      </select>
+                      <br>
+                    </div>
+                  </form>
+              </div>
+              <div class="card-footer small text-muted"> Table having <b>prepared queries</b> to be executed directly.</div>
+            </div>
+
+          <!-- results of the query here-->
+          <% if(queried==1){ %>
+              <br>
+              <hr class="sep">
+              <% if(error!=null){%>
+                <h6><font color="red"> <%= error %></font> <h6>
+              <% }%>
+              <div class="card mb-3">
+               <div class="card-header">
+                 <i class="fa fa-table"></i> RESULTS</div>
+               <div class="card-body">
+                 <div class="table-responsive">
+                   <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                     <thead>
+                           <tr>
+                             <% var newkeys= [] %>
+                             <% if(result.length!= 0) newkeys = Object.keys(result[0]); %>
+                             <% for(var i=0; i < newkeys.length; i++){ %>
+                                   <th><%= newkeys[i] %></th>
+                             <% } %>
+                           </tr>
+                     </thead>
+                     <tfoot>
                        <tr>
-                         <% var newkeys= [] %>
-                         <% if(result.length!= 0) newkeys = Object.keys(result[0]); %>
                          <% for(var i=0; i < newkeys.length; i++){ %>
                                <th><%= newkeys[i] %></th>
                          <% } %>
                        </tr>
-                 </thead>
-                 <tfoot>
-                   <tr>
-                     <% for(var i=0; i < newkeys.length; i++){ %>
-                           <th><%= newkeys[i] %></th>
-                     <% } %>
-                   </tr>
-                 </tfoot>
-                 <tbody>
-                   <% if(photos == true ){ %>
-                      <% for(var i=0; i < result.length; i++) { %>
-                            <% for(var k=0; k < result[i]["photos"].length; k++) { %>
-                                <tr>
-                                <% for(var j=0; j < newkeys.length; j++){ %>
-                                      <% if(keys[j] == "photos"){ %>
-                                            <td><%- result[i][newkeys[j]][k] %></td>
-                                      <% }else{ %>
-                                            <td><%= result[i][newkeys[j]] %></td>
-                                      <% } %>
+                     </tfoot>
+                     <tbody>
+                       <% if(photos == true ){ %>
+                          <% for(var i=0; i < result.length; i++) { %>
+                                <% for(var k=0; k < result[i]["photos"].length; k++) { %>
+                                    <tr>
+                                    <% for(var j=0; j < newkeys.length; j++){ %>
+                                          <% if(keys[j] == "photos"){ %>
+                                                <td><%- result[i][newkeys[j]][k] %></td>
+                                          <% }else{ %>
+                                                <td><%= result[i][newkeys[j]] %></td>
+                                          <% } %>
+                                    <% } %>
+                                   </tr>
                                 <% } %>
-                               </tr>
-                            <% } %>
-                    <% } %>
-                   <% } else { %>
-                        <% for(var i=0; i < result.length; i++) { %>
-                              <tr>
-                              <% for(var j=0; j < newkeys.length; j++){ %>
-                                    <td><%= result[i][newkeys[j]] %></td>
-                              <% } %>
-                             </tr>
-                       <%} %>
-                  <% } %>
-                 </tbody>
-               </table>
+                        <% } %>
+                       <% } else { %>
+                            <% for(var i=0; i < result.length; i++) { %>
+                                  <tr>
+                                  <% for(var j=0; j < newkeys.length; j++){ %>
+                                        <td><%= result[i][newkeys[j]] %></td>
+                                  <% } %>
+                                 </tr>
+                           <%} %>
+                      <% } %>
+                     </tbody>
+                   </table>
+                 </div>
+               </div>
+               <div class="card-footer small text-muted">We found <%= result.length %> results for your query.</div>
              </div>
-           </div>
-           <div class="card-footer small text-muted">We found <%= result.length %> results for your query.</div>
-         </div>
-         <form action="/json" method="post">
-           <div class="col text-center">
-               <button type="submit" class="btn btn-block btn-basic">Get JSON object</button>
-           </div>
-        </form>
-        <br>
-      <% }%>
-      <script type="text/javascript">
-       /*  window.onload = function () {
-          var chart = new CanvasJS.Chart("chartContainer", {
-          animationEnabled: true,
-          axisX:{
-          interval: 1
-          },
-          axisY2:{
-          gridColor: "rgba(1,77,101,.1)",
-          title: "Nationalites"
-          },
-          data: [{
-          type: "bar",
-          name: "companies",
-          axisYType: "secondary",
-          color: "#014D65",
-          dataPoints: [
-            { y: 3, label: "Sweden" },
-            { y: 7, label: "Taiwan" },
-            { y: 5, label: "Russia" },
-            { y: 9, label: "Spain" }
-          ]
-          }]
-          });
-          chart.render();
-      }*/
-      /*
-      var ctx=document.getElementById("myBarChart");
-      var myLineChart=new Chart(ctx,
-        {
-          type:"bar",
-          data:{
-          labels:["January","February","March","April","May","June"],
-          datasets:[
-            {
-              label:"Revenue",
-              backgroundColor:"rgba(2,117,216,1)",
-              borderColor:"rgba(2,117,216,1)",
-              data:[4215,5312,6251,7841,9821,14984]
-          }
-         ]
-        },
-        options:{
-          scales:{
-            xAxes:[
-              {
-                time:{unit:"month"},
-                gridLines:{display:!1},
-                ticks:{maxTicksLimit:6}
-              }
-                ],
-            yAxes:[
-              {
-                ticks:{min:0,max:15e3,maxTicksLimit:5},
-                gridLines:{display:!0}
-              }
-            ]
-        },
-        legend:{display:!1}
-        }
-      }
-      )
-      */
-      /*
-      <!-- Example Bar Chart Card-->
-      <div class="card mb-3">
-        <div class="card-header">
-          <i class="fa fa-bar-chart"></i> Nationalities on Instagram in June 2014</div>
-        <div class="card-body">
-          <canvas id="myBarChart" width="100" height="50"></canvas>
-        </div>
-        <div class="card-footer small text-muted">DataViz of the query you asked for</div>
+             <!-- Example Bar Chart Card-->
+             <% if( Object.keys(plot) != 0 ){ %>
+             <div class="card mb-3">
+               <div class="card-header">
+                 <i class="fa fa-bar-chart"></i> RESULT PLOT</div>
+               <div class="card-body">
+                 <canvas id="myBarChart" width="100" height="50"></canvas>
+               </div>
+               <div class="card-footer small text-muted">DataViz of the query you asked for</div>
+             </div>
+             <script type="text/javascript">
+               if(document.getElementById("myBarChart") != null ){
+               var ctx=document.getElementById("myBarChart");
+               var myLineChart=new Chart(ctx,{
+                   type:"bar",
+                   data:{
+                   labels: <%-JSON.stringify(plot['labels'])%>,
+                   datasets:[
+                     {
+                       label:"<%-plot['label']%>",
+                       backgroundColor:"rgba(2,117,216,1)",
+                       borderColor:"rgba(2,117,216,1)",
+                       data:<%-JSON.stringify(plot['data'])%>
+                   }
+                  ]
+                 },
+                 options:{
+                   scales:{
+                     xAxes:[{gridLines:{display:!1}}],
+                     yAxes:[{ticks:{min:0},gridLines:{display:!0}}]
+                   },
+                   legend:{display:!1}
+                 }
+               })
+             }</script>
+             <%}%>
+
+             <form action="/json" method="post" id="thiForm">
+               <div class="col text-center">
+                   <button type="submit" class="btn btn-block btn-basic">Get JSON object</button>
+               </div>
+             </form>
+            <br>
+          <% }%>
       </div>
-      */
-      </script>
-    </div>
     <footer class="sticky-footer">
       <div class="container">
         <div class="text-center">
@@ -326,6 +289,47 @@
     <script src="js/style.min.js"></script>
     <!-- Custom scripts for this page-->
     <script src="js/datatables.min.js"></script>
+    <!-- gif -->
+    <script>
+    function load(){
+      if(loading.style.display  == "none"){
+          $("#content").hide();
+          $("#loading").show();
+      }
+      else{
+        $("#loading").hide();
+        $("#content").show();
+      }
+    }
+    function waitFunction(){
+         var parentOfImg = document.getElementById('loading');
+         if($("#loading > img").length == 0){
+           var img = document.createElement("img");
+           img.src = "images/loading.gif";
+           parentOfImg.appendChild(img);
+         }
+     }
+    $("#form").submit(function( event ) {
+       load();
+       waitFunction();
+    });
+    $("#thiForm").submit(function( event ) {
+      load();
+      waitFunction();
+    });
+    $(document).ready($("#secForm").submit(function(){
+      load();
+      waitFunction();
+    }));
+    function submity3m(){
+      $("#secForm").submit();
+    }
+    $('a[href="/"]').click(function(){
+      load();
+      waitFunction();
+    });
+
+    </script>
     <script src="vendor/chart.js/Chart.min.js"></script>
   </div>
 </body>

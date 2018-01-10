@@ -60,57 +60,60 @@
       <ol class="breadcrumb">
         <li class="breadcrumb-item active">Admin</li>
       </ol>
-      <h1>Connexion</h1>
-      <hr>
-      <h6>Connexion is currently <b><%= status %></b> </h6>
-      <p> <%- description %> </p>
-      <form action="/" method="post"> <!-- path to mongo -->
-        <div>
-        <label for="path">
-          You can create the connexion by giving us the path to the mongodb executable.
-          If you check the box, we will re-create the database file in the mongodb server.
-          <br>
-          <font color="red"> If it's taking more than 5 seconds OR the statistics table is empty, please restart the server. </font>
-        </label>
-        <div class="input-group">
-          <span class="input-group-addon">
-            <input class="pointer" type="checkbox" aria-label="Checkbox for re-create the database" name="recreate" id="recreate">
-          </span>
-          <input type="text" class="form-control" placeholder="Exemple: C:\Mongo\db\bin" name="path" id="path">
-          <span class="input-group-btn">
-                  <button class="btn btn-secondary" type="submit" id="submit" class="button">Create!</button>
-          </span>
+      <div id="loading" style="display:none; width:100%; height:100%"> <img src="images/loading.gif" style="width:45%; margin-left: auto;margin-right: auto; display: block;"/></div>
+      <div id="content">
+          <h1>Connexion</h1>
+          <hr>
+          <h6>Connexion is currently <b><%= status %></b> </h6>
+          <p> <%- description %> </p>
+          <form id="form" action="/" method="post"> <!-- path to mongo -->
+            <div>
+            <label for="path">
+              You can create the connexion by giving us the path to the mongodb executable.
+              If you check the box, we will re-create the database file in the mongodb server.
+              <br>
+              <font color="red"> If it's taking more than 5 seconds OR the statistics table is empty, please restart the server. </font>
+            </label>
+            <div class="input-group">
+              <span class="input-group-addon">
+                <input class="pointer" type="checkbox" aria-label="Checkbox for re-create the database" name="recreate" id="recreate">
+              </span>
+              <input type="text" class="form-control" placeholder="Exemple: C:\Mongo\db\bin" name="path" id="path">
+              <span class="input-group-btn">
+                      <button class="btn btn-secondary" type="submit" id="submit" class="button">Create!</button>
+              </span>
+            </div>
+          </div>
+          </form>
+          <hr class="sep">
+          <h1>Statistics</h1>
+          <hr>
+          <% if(status=="up" && stats.length != 0){ %>
+          <div class="card mb-3">
+           <div class="card-header">
+             <i class="fa fa-table"></i> Statistics</div>
+           <div class="card-body">
+             <div class="table-responsive">
+               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                 <tbody>
+                     <% var newkeys= [] %>
+                     <% if(stats.length!= 0) newkeys = Object.keys(stats);%>
+                     <% for(var i=0; i < newkeys.length; i++){ %>
+                        <tr>
+                           <td><%= newkeys[i] %></td>
+                           <td><%- stats[newkeys[i]] %></td>
+                       </tr>
+                     <%}%>
+                 </tbody>
+               </table>
+             </div>
+           </div>
+           <div class="card-footer small text-muted" id="lastupdated"></div>
+          </div>
+          <% } else{%>
+            <h6><i> Connexion is currently down, no statistics available. </i> </h6>
+          <% } %>
         </div>
-      </div>
-      </form>
-      <hr class="sep">
-      <h1>Statistics</h1>
-      <hr>
-      <% if(status=="up"){ %>
-      <div class="card mb-3">
-       <div class="card-header">
-         <i class="fa fa-table"></i> Statistics</div>
-       <div class="card-body">
-         <div class="table-responsive">
-           <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-             <tbody>
-                 <% var newkeys= [] %>
-                 <% if(stats.length!= 0) newkeys = Object.keys(stats);%>
-                 <% for(var i=0; i < newkeys.length; i++){ %>
-                    <tr>
-                       <td><%= newkeys[i] %></td>
-                       <td><%- stats[newkeys[i]] %></td>
-                   </tr>
-                 <%}%>
-             </tbody>
-           </table>
-         </div>
-       </div>
-       <div class="card-footer small text-muted" id="lastupdated"></div>
-      </div>
-      <% } else{%>
-        <h6><i> Connexion is currently down, no statistics available. </i> </h6>
-      <% } %>
     </div>
     <footer class="sticky-footer">
       <div class="container">
@@ -128,17 +131,60 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <!-- Custom scripts for all pages-->
     <script src="js/style.min.js"></script>
+    <form action="/" method="post" id="autoform" style='display:none'><input name="beforeTreatement" id="beforeTreatement"></form>'
   </div>
 
   <script>
-    var currentdate = new Date();
-    var datetime =   currentdate.getDate() + "/"
-                    + (currentdate.getMonth()+1)  + "/"
-                    + currentdate.getFullYear() + " at "
-                    + currentdate.getHours() + "h"
-                    + currentdate.getMinutes() + "m"
-                    + currentdate.getSeconds()+"s";
-    document.getElementById("lastupdated").innerHTML = "Last updated in <i>"+ datetime+ "</i>.";
+    var count = 0;
+   if(document.getElementById("lastupdated") != null){
+        var currentdate = new Date();
+        var datetime =   currentdate.getDate() + "/"
+                        + (currentdate.getMonth()+1)  + "/"
+                        + currentdate.getFullYear() + " at "
+                        + currentdate.getHours() + "h"
+                        + currentdate.getMinutes() + "m"
+                        + currentdate.getSeconds()+"s";
+        document.getElementById("lastupdated").innerHTML = "Last updated in <i>"+ datetime+ "</i>.";
+    }
+   function load(){
+     if(loading.style.display  == "none"){
+         $("#content").hide();
+         $("#loading").show();
+     }
+     else{
+       $("#loading").hide();
+       $("#content").show();
+     }
+   }
+   function waitFunction(){
+        var parentOfImg = document.getElementById('loading');
+        if($("#loading > img").length == 0){
+        	var img = document.createElement("img");
+        	img.src = "images/loading.gif";
+        	parentOfImg.appendChild(img);
+        }
+    }
+   $("#form").submit(function( event ) {
+      load();
+      waitFunction();
+   });
+   $('a[href="/"]').click(function(){
+     load();
+     waitFunction();
+   });
+   $(document).ready($("#autoform").submit(function(){
+     load();
+     waitFunction();
+   }));
+
+   window.onload = function(){
+      if(<%= get %> == 1){
+          $("#autoform").submit();
+      }
+    }
+
+
+
   </script>
 </body>
 
