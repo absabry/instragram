@@ -60,7 +60,7 @@
       <ol class="breadcrumb">
         <li class="breadcrumb-item active">Admin</li>
       </ol>
-      <div id="loading" style="display:none; width:100%; height:100%"> <img src="images/loading.gif" style="width:45%; margin-left: auto;margin-right: auto; display: block;"/></div>
+      <div id="loading" style="position:relative; display:none; width:100%; height:100%"> </div>
       <div id="content">
           <h1>Connexion</h1>
           <hr>
@@ -157,11 +157,19 @@
      }
    }
    function waitFunction(){
+        var start = new Date().getTime();
         var parentOfImg = document.getElementById('loading');
         if($("#loading > img").length == 0){
         	var img = document.createElement("img");
-        	img.src = "images/loading.gif";
+        	img.src = "images/wait.gif";
+          img.style ="margin-left: auto;margin-right: auto; display: block; vertical-align:middle;";
         	parentOfImg.appendChild(img);
+          setTimeout( function(){
+              $("#loading").empty();
+              img.src = "images/loading.gif";
+              img.style ="width:45%; margin-left: auto;margin-right: auto; display: block;";
+              parentOfImg.appendChild(img);
+          }, 2000 );
         }
     }
    $("#form").submit(function( event ) {
@@ -176,7 +184,6 @@
      load();
      waitFunction();
    }));
-
    window.onload = function(){
       if(<%= get %> == 1){
           $("#autoform").submit();
