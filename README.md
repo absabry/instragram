@@ -71,6 +71,7 @@ The result you have for this query :
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/results%20of%20users.PNG)
 If you want to get the complete json object, you can get it by clicking on the “GET JSON”
 button (in the bottom ot the previous page)  ![alt tag](https://github.com/absabry/instragram/blob/master/images/get%20json.PNG)
+And here's the results when we click on the json object : 
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/json.PNG)
 And finally if there are no results, you will have something like :
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/no%20result.PNG)
