@@ -18,12 +18,13 @@ You can use this line on your commande line (from your main repository) to add a
 
 To use this application you should install mongodb server. You can download it from http://www.mongodb.org/downloads and you should install node js also https://nodejs.org/en/download/. Think to define it in environment variable for easiest manipulation!
 
-Our application is divided in three view : 
+Our application is divided in three view like we can see in the next image : 
 -the first one is the admin view, where we can get statstics of the database and counting queries.
 -the second view is the users view, it contains a form and some prepared query.
 -the third view is for analysts that need heavy queries to be done on the database.
-![alt tag](https://github.com/absabry/instragram/blob/master/images/menu.PNG)
 
+
+![alt tag](https://github.com/absabry/instragram/blob/master/images/menu.PNG)
 
 ## Steps to use it
 
@@ -49,7 +50,7 @@ After being connected, you can check directly for the statistics of your databas
 
 #### User view
 
-You have a query form, where you can search for instagramers you want with your criteria. You have also query the database by using some pre-defined queries we made for you!
+You have a query form, where you can search for instagramers you want with your criteria. You also can query the database by using some pre-defined queries we made for you!
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/results%20of%20users.PNG)
 
 You have several options, you just have to choose one of them.
@@ -73,3 +74,6 @@ button (in the bottom ot the previous page).
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/json.PNG)
 And finally if there are no results, you will have something like :
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/no%20result.PNG)
+
+
+Another option we add it in our project, is to visuliaze the data in it's simplest way : a chart. This can be done with the pre-defined query onyl though. Here's an example of a chart ![alt tag](https://github.com/absabry/instragram/blob/master/images/plot.PNG)
