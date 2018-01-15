@@ -31,8 +31,8 @@ Our application is divided in three view like we can see in the next image :
 Launch the main file main.js > _node main.js_  
 You have an optionnal argument that we strongly recommend using : time (in milliseconds) taht we should wait after launching your mongod.exe executable.
 If your exectuable is already launched, you can juste keep 0 milliseconds. Otherwise we recommand to keep it to 5000 milliseconds to be sure that the application dosen't crush. 
-So for launching the app when the server is already launched :   _node main.js 0_.,
-Otherwise : _node main.js 5000_ or whatever milliseconds you think you need to be sure that the connexion is done. 
+So for launching the app when the server is already launched :   _node main.js 0_. 
+Otherwise : _node main.js 5000_ or whatever milliseconds you think you need to be sure that the connexion is done. Despite those steps, you should sometimes restatrt the server if it's too slow. 
 
 #### By the way, you have to ask for the creation of the database! if you don’t check the box at least one time, the database will be empty and there won’t be any results!) ####
 
@@ -63,7 +63,7 @@ You have several options, you just have to choose one of them.
 ![alt tag](https://github.com/absabry/mongodb/blob/master/images/options.png)
 
 ## Results
-When you query the database using the filter form or the pre-defined queries, in either users view or results view, you would see the results in the same page in a good looking table. 
+When you query the database using the filter form or the pre-defined queries, in either users view or results view, you would see the results in the same page in a good looking table. This table have the ability to sort the result by fields and search for elements. It's sorted by default based of the first field.   
 Here's an example of utilisation :
 The filter form
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/pre-result.PNG)
