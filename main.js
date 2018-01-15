@@ -9,7 +9,9 @@ var AdmZip = require('adm-zip');
 var path = require('path');
 var sleep = require('system-sleep');
 
-var result = []; var stats = {}; var status = "down";var description ="Connexion is lost.";
+var result = []; var status = "down";var description ="Connexion is lost.";
+var sleepySeconds = process.argv.slice(2)!=''?process.argv.slice(2):5000; // 5000 milliseconds by default
+var nbUserQuery = {"filter":0,"defined":0}; nbAnalystQuery=0; var stats = {"nbUserQuery":nbUserQuery,"nbAnalystQuery":nbAnalystQuery};
 
 
 var app = express();
@@ -50,19 +52,21 @@ app.get('/', (req, res) => {
 });
 
 app.post("/", function (req, res) {
-    console.log("in the post");
     if(req.body.beforeTreatement != undefined){
-      console.log("in the first post");
-      if(status == "down" || Object.keys(stats).length !=0){
+      console.log("in the first post (actually it's the get)");
+      if(status == "down" || Object.keys(stats).length !=2){
+        stats["nbUserQuery"] = nbUserQuery;
+        stats["nbAnalystQuery"]= nbAnalystQuery;
         res.render(__dirname + '\\view\\index', {get:0,status:status, description:description,stats:stats});
       }
       else{
+        console.log("time to sleep a little bit");sleep(sleepySeconds);console.log("we're on again"); // have to sleep to wait for the connexion
         checkCoordIndex();
         ComputeStats(res,status,description);
       }
     }
     else{
-      console.log("in the second post");
+      console.log("in the second post (actually it's the post)");
       var recreate = false;
       if(!fs.existsSync("C:\\data") || !fs.existsSync("C:\\data\\db")){
           exec("mkdir C:\\data\\db");
@@ -75,12 +79,11 @@ app.post("/", function (req, res) {
             var pathJson = path.dirname(fs.realpathSync(__filename));
             downloadAddDB(req,pathJson);
             description = "File will be downloded,unzipped and imported to mongodb server in a few moments, check the console for more informations."+
-            " You can use this application to extract some informations from our instagram database."
-            checkCoordIndex();
-            ComputeStats(res,status,description);
+            "You can use this application to extract some informations from our instagram database."
           }
           else{
             description="You can use this application to extract some informations from our instagram database.";
+            console.log("time to sleep a little bit");sleep(sleepySeconds);console.log("we're on again"); // have to sleep to wait for the connexion
             checkCoordIndex();
             ComputeStats(res,status,description);
           }
@@ -107,6 +110,8 @@ function downloadAddDB(req,pathJson){
           console.log("File has now been downloaded");
           exec(command);
           console.log("The file has been imported to mongodb database.");
+          checkCoordIndex();
+          ComputeStats(res,status,description);
       })
       .catch(function (err) {
           console.error(err);
@@ -196,17 +201,23 @@ function contains(array, element) {
 
 // dropdown queries
 function predefinedQuery(req,res){
+    nbUserQuery["defined"] +=1;
     var query = JSON.parse(req.body.query)
+
     if(query.agg==1){
         connexion.aggregate(query["query"],function(err,data){
             result=data;
             var plot = {};
-            plot["label"]= "Origine d'instagramers";
-            plot["labels"]=[];
-            plot["data"]= [];
-            for(var i=0;i<result.length;i++){
-              plot["labels"].push(result[i]["nationality"])
-              plot["data"].push(result[i]["count"])
+            if(query.hasOwnProperty('plot')){
+              var plotInfos = query["plot"];
+              plot["type"]= plotInfos.type;
+              plot["label"]= plotInfos.label;
+              plot["labels"]=[];
+              plot["data"]= [];
+              for(var i=0;i<result.length;i++){
+                plot["labels"].push(result[i][plotInfos.labels])
+                plot["data"].push(result[i][plotInfos.data])
+              }
             }
             res.render(__dirname + '\\view\\users',{queried:1,result:result,plot:plot,photos:false,error:null});
         })
@@ -221,6 +232,7 @@ function predefinedQuery(req,res){
 
 // form queries
 function filterQuery(req,res){
+    nbUserQuery["filter"] +=1;
     request = prepareSearchFilters(req);
     if(Object.keys(request.query).length){
       connexion.find(JSON.stringify(request),null,function(err,data){
@@ -335,9 +347,6 @@ function prepareSearchFilters(req){
 
 // admin statistics
 function ComputeStats(res, status,description){
-  console.log("time to sleep a little bit")
-  sleep(1000); // have to sleep to wait for the connexion
-  console.log("we're on again");
   connexion.distinct('nationality',function(err,list){
       var nationality=list;
       stats["Nationalities"] = "There are "+ nationality.length +" distinct nationality, including "+
