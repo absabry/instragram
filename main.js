@@ -9,7 +9,7 @@ var AdmZip = require('adm-zip');
 var path = require('path');
 var sleep = require('system-sleep');
 
-var result = []; var status = "down";var description ="Connexion is lost.";
+var result = []; var status = "down"; var description ="Connexion is lost.";
 var sleepySeconds = process.argv.slice(2)!=''?process.argv.slice(2):5000; // 5000 milliseconds by default
 var nbUserQuery = {"filter":0,"defined":0}; nbAnalystQuery=0; var stats = {"nbUserQuery":nbUserQuery,"nbAnalystQuery":nbAnalystQuery};
 
@@ -205,22 +205,25 @@ function predefinedQuery(req,res){
     var query = JSON.parse(req.body.query)
 
     if(query.agg==1){
-        connexion.aggregate(query["query"],function(err,data){
-            result=data;
-            var plot = {};
-            if(query.hasOwnProperty('plot')){
-              var plotInfos = query["plot"];
-              plot["type"]= plotInfos.type;
-              plot["label"]= plotInfos.label;
-              plot["labels"]=[];
-              plot["data"]= [];
-              for(var i=0;i<result.length;i++){
-                plot["labels"].push(result[i][plotInfos.labels])
-                plot["data"].push(result[i][plotInfos.data])
-              }
-            }
-            res.render(__dirname + '\\view\\users',{queried:1,result:result,plot:plot,photos:false,error:null});
+      if(query.hasOwnProperty("countdoc")){
+          connexion.find("{}",null,function(err,data){
+              var count  = data.length;
+              var queryText = JSON.stringify(query["query"])
+              queryText = queryText.replace(new RegExp("\"countdoc\"", 'g'), count);
+              connexion.aggregate(JSON.parse(queryText),function(err,data){
+                  result=data;
+                  var plot = createPlot(query);
+                  res.render(__dirname + '\\view\\users',{queried:1,result:result,plot:plot,photos:false,error:null});
+              })
         })
+      }
+      else{
+          connexion.aggregate(query["query"],function(err,data){
+              result=data;
+              var plot = createPlot(query);
+              res.render(__dirname + '\\view\\users',{queried:1,result:result,plot:plot,photos:false,error:null});
+          })
+      }
     }
     else{
         connexion.find(JSON.stringify(result),null,function(err,data){
@@ -228,6 +231,23 @@ function predefinedQuery(req,res){
             res.render(__dirname + '\\view\\result',{agg:0,result:result});
         })
     }
+}
+
+// create the array used to plot if needed to
+function createPlot(query){
+      var plot = {};
+      if(query.hasOwnProperty('plot')){
+        var plotInfos = query["plot"];
+        plot["type"]= plotInfos.type;
+        plot["label"]= plotInfos.label;
+        plot["labels"]=[];
+        plot["data"]= [];
+        for(var i=0;i<result.length;i++){
+          plot["labels"].push(result[i][plotInfos.labels])
+          plot["data"].push(result[i][plotInfos.data])
+        }
+      }
+      return plot;
 }
 
 // form queries

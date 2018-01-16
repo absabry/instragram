@@ -35,7 +35,7 @@
     ],
     "photos" : [
         {
-            "dateCreation" : "2014-06-21 20:14:53",
+            "dateCreation" : ISODate("2014-06-21T20:14:53.000+0000"),
             "idLocation" : NumberInt(152778),
             "name" : "Pont Neuf",
             "coords" : {
@@ -55,7 +55,7 @@
             "address" : "Carrousel du Louvre, 99 Rue de Rivoli, Paris"
         },
         {
-            "dateCreation" : "2014-06-21 20:16:03",
+            "dateCreation" : ISODate("2014-06-21T20:16:03.000+0000"),
             "idLocation" : NumberInt(152778),
             "name" : "Pont Neuf",
             "coords" : {

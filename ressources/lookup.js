@@ -1,4 +1,4 @@
-use instagram;
+use BDD;
 
 // clean locationGoogle database
 db.locationGoogle.find().forEach(function(item)
@@ -94,6 +94,15 @@ db.instagramers.update({}, {$unset: {infos:1}} , {multi: true});
 
 // nationality instead of country...
 db.instagramers.updateMany( {}, { $rename: { "Country": "nationality" } } )
+
+
+// convert date time string to ISO Date
+db.instagramers.find().forEach(function(item) { 
+    for(var i=0; i<item.photos.length; i++){
+       item.photos[i].dateCreation = new Date(item.photos[i].dateCreation);
+    }
+    db.instagramers.save(item); 
+})
 
 
 // 2d sphere index
