@@ -38,11 +38,14 @@ Launch the mongodb with a consequent waiting time (5 seconds in my case)
 Then, you have to check the box, and enter the path to your bin folder
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/1_path.PNG)
 
+PS : if you forgot to check the box, the database wont be downloaded and imported : 
+![alt tag](https://github.com/absabry/instragram/blob/master/images/1_wrong.PNG)
+
 Then, you can see that mongodb is launched, but you have to wait for the downloaded database and the import phase.
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/1_cmdafter.PNG)
 
 Then, you can see that mongodb is launched, but you have to wait for the downloaded database and the import phase.
-![alt tag](https://github.com/absabry/instragram/blob/master/images/1_cmdafter.PNG.PNG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/1_cmdafter.PNG)
 
 Finally, you will have a message on the command line teeling you that all process are good 
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/1_finally.PNG)
@@ -64,30 +67,35 @@ in this way :
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/3.PNG)
 #### Second step
 
-You have a query form, where you can search for articles you want with your criteria.
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/queryform.JPG)
+After you're connected, you will have three differents views: 
 
-#### Third Step
-You have a another options to query the database, you can search for articles you want with some pre-defined queries we made for you!
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/auto.JPG)
-And you have several options, you just have to choose one of them.
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/options.png)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/menu.PNG)
 
-Like I did in the photo, if your exectuable is already launched, you can juste keep 0 milliseconds. Otherwise we recommand to keep it to 5000 milliseconds to be sure that the application dosen't crush. The default value is 5000 milliseconds. 
+##### Admin view 
+You will have some statistics on the database 
+![alt tag](https://github.com/absabry/instragram/blob/master/images/afterConnected.JPG)
+
+##### Users view 
+You will have two different ways to query the database. The first one is to filter users directly using a simple 
+form, and in the second you would use the prepared query we ready to be exectued.
+![alt tag](https://github.com/absabry/instragram/blob/master/images/users%20query.PNG)
+
+The results will be in a responsive table form. It implement a quick search on it's elements : 
+![alt tag](https://github.com/absabry/instragram/blob/master/images/results%20of%20users.PNG)
+
+The results can be shown in a chart after this table for some queries 
+![alt tag](https://github.com/absabry/instragram/blob/master/images/plot.PNG)
+
+If there are no results, that table will be empty 
+![alt tag](https://github.com/absabry/instragram/blob/master/images/no%20result.PNG)
+You also have a button in the bottom of the page to get the json object we got from the query you asked for. 
+![alt tag](https://github.com/absabry/instragram/blob/master/images/get json.JPG)
+
+The json will be like : 
+![alt tag](https://github.com/absabry/instragram/blob/master/images/json.JPG)
 
 
-Launch the main file main.js with the milliseconds it should wait after connexion > _node main.js milliseconds_  
-You have an optionnal argument that we strongly recommend using : time (in milliseconds) that we should wait after launching your mongod.exe executable or after importing the database.
+##### Analyst view 
+The analyst view is exatcly like the users view, but the query are more heavy and may not be exectued any time. 
 
-## Results
-When you query the database using the query form or the pre-defined queries, you would see the results in another page, like you would see it in RoboMongo (in JSON form)
-Here's an example of utilisation :
-Your query form
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/pres-result.JPG)
-The result you have for this query :
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/results.JPG)
-If you want to get the complete json object, you can get it by clicking on the “GET JSON”
-button.
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/json.JPG)
-And finally if there are no results, you will have something like :
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/noresult.JPG)
+
