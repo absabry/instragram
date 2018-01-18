@@ -77,6 +77,9 @@ You will have two different ways to query the database. The first one is to filt
 form, and in the second you would use the prepared query we ready to be exectued.
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/users%20query.PNG)
 
+Some choices you have in the users view
+![alt tag](https://github.com/absabry/instragram/blob/master/images/userschoice.png)
+
 The results will be in a responsive table form. It implement a quick search on it's elements : 
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/results%20of%20users.PNG)
 
@@ -94,5 +97,6 @@ The json will be like :
 
 ##### Analyst view 
 The analyst view is exatcly like the users view, but the query are more heavy and may not be exectued any time. 
+![alt tag](https://github.com/absabry/instragram/blob/master/images/analystechoice.png)
 
 
