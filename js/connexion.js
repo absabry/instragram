@@ -4,11 +4,19 @@ var url = "mongodb://localhost"
 module.exports = {
     connected : function(callback){
       MongoClient.connect(url, function(err, client) {
+         var result = {"status":"down","colExists":false}
           if (err)
-              callback(err,"down");
+              callback(err,result);
           else{
-            callback(null,"up");
-         }
+              var db = client.db('BDD');
+              result["status"]="up";
+              db.listCollections().toArray(function(err, collections) {
+                  for(var i=0;i<collections.length;i++){
+                    if(collections[i].name =="instagramers") {result["colExists"]=true; break;}
+                  }
+                  callback(null,result);
+              });
+           }
       });
     },
     find: function(request,sortInfos,callback){

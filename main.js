@@ -9,9 +9,9 @@ var AdmZip = require('adm-zip');
 var path = require('path');
 var sleep = require('system-sleep');
 
-var result = []; var status = "down"; var description ="Connexion is lost.";
+var result = []; var status = "down"; var found=false; var description ="Connexion is lost.";
 var sleepySeconds = process.argv.slice(2)!=''?process.argv.slice(2):5000; // 5000 milliseconds by default
-var nbUserQuery = {"filter":0,"defined":0}; nbAnalystQuery=0; var stats = {"nbUserQuery":nbUserQuery,"nbAnalystQuery":nbAnalystQuery};
+var nbUserQuery = {"filter":0,"defined":0}; nbAnalystQuery=0; var stats = {"Queries launched by user":nbUserQuery,"Queries launched by the analysts":nbAnalystQuery};
 
 
 var app = express();
@@ -42,7 +42,8 @@ app.get('/users', (req, res) => {
 
 app.get('/', (req, res) => {
   connexion.connected(function(err,data){
-      status=data;
+      status=data.status;
+      found = data.colExists;
       description = "You can use this application to extract some informations from our instagram database.";
       if(err != null){
           description = "<i>"+err+"</i>";
@@ -53,13 +54,13 @@ app.get('/', (req, res) => {
 
 app.post("/", function (req, res) {
     if(req.body.beforeTreatement != undefined){
-      if(status == "down" || Object.keys(stats).length !=2){
-        stats["nbUserQuery"] = nbUserQuery;
-        stats["nbAnalystQuery"]= nbAnalystQuery;
+      if(status == "down" || found==false || Object.keys(stats).length !=2){
+        stats["Queries launched by user"] = nbUserQuery;
+        stats["Queries launched by the analysts"]= nbAnalystQuery;
         res.render(__dirname + '\\view\\index', {get:0,status:status, description:description,stats:stats});
       }
       else{
-        console.log("time to sleep a little bit");sleep(sleepySeconds);console.log("we're on again"); // have to sleep to wait for the connexion
+        console.log("We have to sleep for "+ sleepySeconds +" seconds waiting for the connexion");sleep(sleepySeconds);console.log("we're on again"); // have to sleep to wait for the connexion
         checkCoordIndex();
         ComputeStats(res,status,description);
       }
@@ -81,9 +82,14 @@ app.post("/", function (req, res) {
           }
           else{
             description="You can use this application to extract some informations from our instagram database.";
-            console.log("time to sleep a little bit");sleep(sleepySeconds);console.log("we're on again"); // have to sleep to wait for the connexion
-            checkCoordIndex();
-            ComputeStats(res,status,description);
+            console.log("We have to sleep for "+ sleepySeconds +" seconds waiting for the connexion");sleep(sleepySeconds);console.log("we're on again"); // have to sleep to wait for the connexion
+            if(found==true){
+                checkCoordIndex();
+                ComputeStats(res,status,description);
+            }
+            else{
+              res.render(__dirname + '\\view\\index',{get:0,status:status, description:description+"<br> <b> Database not found in MongoDB, please check the box to add it.</b>",stats:stats});
+            }
           }
       }
       else{
@@ -113,6 +119,7 @@ function downloadAddDB(res,req,pathJson){
           console.log("File has now been downloaded");
           exec(command);
           console.log("The file has been imported to mongodb database.");
+          console.log("We have to sleep for "+ sleepySeconds +" seconds waiting for the connexion");sleep(sleepySeconds);console.log("we're on again"); // have to sleep to wait for the connexion
           checkCoordIndex();
           ComputeStats(res,status,description);
       })
@@ -495,7 +502,6 @@ function checkCoordIndex(){
         if(!contains(keys,"photos.coords_2dsphere")){
             connexion.createIndex({ "photos.coords" : "2dsphere" },function(err,docs){
                 console.log("Index 'photos.coords' has just been created");
-                console.log(docs);
             });
         }
     });
