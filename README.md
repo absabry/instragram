@@ -92,7 +92,7 @@ You also have a button in the bottom of the page to get the json object we got f
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/get json.JPG)
 
 The json will be like : 
-![alt tag](https://github.com/absabry/instragram/blob/master/images/json.JPG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/json.PNG)
 
 
 ##### Analyst view 
