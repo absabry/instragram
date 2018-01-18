@@ -6,15 +6,19 @@
   <link rel="icon" type="image/png" href="images/fav.png" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Heavy queries that cannot be exectued many time">
+  <meta name="description" content="Heavy queries that cannot be exectued any time">
   <meta name="author" content="Abdellah Sabry">
   <title>Instagram Application</title>
   <!-- Bootstrap core CSS-->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <!-- Custom fonts for this template-->
   <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <!-- Page level plugin CSS-->
+  <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
   <!-- Custom styles for this template-->
   <link href="css/style.css" rel="stylesheet">
+  <!--charts -->
+  <script src="vendor/chart.js/Chart.min.js"></script>
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -60,40 +64,186 @@
       <ol class="breadcrumb">
         <li class="breadcrumb-item active">Charts</li>
       </ol>
-      <!-- Area Chart Example-->
-      <div class="card mb-3">
-        <div class="card-header">
-          <i class="fa fa-area-chart"></i> Area Chart Example</div>
-        <div class="card-body">
-          <canvas id="myAreaChart" width="100%" height="30"></canvas>
-        </div>
-        <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-      </div>
-      <div class="row">
-        <div class="col-lg-8">
-          <!-- Example Bar Chart Card-->
+      <div id="loading" style="display:none; width:100%; height:100%"></div>
+      <div id="content">
+          <hr class="sep">
           <div class="card mb-3">
-            <div class="card-header">
-              <i class="fa fa-bar-chart"></i> Bar Chart Example</div>
-            <div class="card-body">
-              <canvas id="myBarChart" width="100" height="50"></canvas>
-            </div>
-            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+              <div class="card-header">ANALYST QUERIES</div>
+              <div class="card-body">
+                  <p> Any analyst can choose any of our prepared queries to execute. </p>
+                  <form action="/analyst" method="post" id="secForm">
+                    <div class="form-group">
+                      <label for="query">Analyst queries:</label>
+                      <select class="form-control" name="query" id="query" onchange="submitSec();">
+                        <option value=''>None</option>
+                        <option value=
+                          '{
+                              "type":"agg",
+                              "plot":{"type":"bar","label":"Instagramers origin","labels":"nationality","data":"nbPhotography"},
+                              "query":  [
+                                            {"$unwind": "$photos"},
+                                            {"$match":{"photos.coords": { "$geoWithin": { "$polygon": [[2.294576168,48.858362295],[ 2.300607557, 48.872147404],[2.294994593,48.873825615],[2.294576168,48.858362295]] }}}},
+                                            { "$group": {"_id": "$nationality", "photography": { "$sum": 1 } } },
+                                            { "$project" : {"_id":0,"nationality":"$_id","nbPhotography": "$photography"}},
+                                            { "$sort": { "nbPhotography": -1}}
+                                        ]
+                            }'
+                          >Trouver les utilisateurs les plus fréquent dans cette zone.</option>
+                        <option value=
+                          '{
+                              "type":"agg",
+                              "query":  [
+                                          { "$geoNear": {"near": { "type": "Point", "coordinates": [ 2.300607557, 48.872147404]},"distanceField": "dist.calculated","maxDistance": 10,"spherical": true}},
+                                          { "$unwind": "$photos"},
+                                          { "$group": {"_id": { "day":{"$dayOfMonth": "$photos.dateCreation"},"hour":{"$hour": "$photos.dateCreation"}}, "photography": { "$sum": 1 } } },
+                                          { "$sort": { "_id.day": 1,"_id.hour":1}},
+                                          { "$project": {"_id":0,"day":{"$concat": [ { "$substr": ["$_id.day",0,2] }, "/", "06" ]},"hour":{"$concat": [ { "$substr": ["$_id.hour",0,2] }, "", "H" ]}, "nbPhotography": "$photography" }}
+                                        ]
+                            }'
+                          >Montrer l'évolution de la visite de l'Avenue des Champs Elysées durant le mois..</option>
+                        <option value=
+                          '{
+                              "type":"mapreduce",
+                              "query": {
+                                "map":"function () { for(var i=0;i<this.photos.length;i++){ for(var j=0;j<this.photos[i].type.length;j++){ emit({\"type\":this.photos[i].type[j],\"nationality\":this.nationality},1);}}}",
+                                "reduce":"function (key, values) {return Array.sum(values);}"
+                              }
+                            }'
+                         >Analyser les utilisateurs, pour donner une préférence de type de lieu a chaque nationalité.</option>
+                        <option value=
+                          '{
+                              "type":"mapreduce",
+                              "query": {
+                                "map":"function () { for(var i=0;i<this.photos.length;i++){emit(this.nationality,{\"types\":this.photos[i].type});}}",
+                                "reduce":"function (key, values) {var types=[];for(var i=0;i<values.length;i++){for(var j=0;j< values[i].types.length; j++){var type = values[i].types[j];if (!Array.contains(types,type)) {types.push(type);}}}return {\"types\":types};};"
+                              }
+                          }'
+                         >Donner tous les type de lieux visités par nationalité.</option>
+                        <option value=
+                           '{
+                               "type":"mapreduce",
+                               "query": {
+                                 "map":"function(){var names = [];if(this.photos != null && this.photos.length !=0){for(var i=0;i<this.photos.length;i++){var name = this.photos[i].name;if (!Array.contains(names,name)) {names.push(name);}}}emit(null, {\"lieux\":names});}",
+                                 "reduce":"function(key,values){var lieux=[];for(var i=0;i<values.length;i++){for(var j=0;j< values[i].lieux.length; j++){var lieu = values[i].lieux[j];if (!Array.contains(lieux,lieu)) {lieux.push(lieu);}}}return {\"lieux\":lieux};}"
+                               }
+                           }'
+                         >Sortir les lieux distinct visités de la base actuelle.</option>
+                        <option value=
+                           '{
+                               "type":"agg",
+                               "query":  [
+                                             {"$unwind": "$photos"},
+                                             {"$match":{"photos.coords": { "$geoWithin": { "$polygon": [[2.294576168,48.858362295],[ 2.300607557, 48.872147404],[2.294994593,48.873825615],[2.294576168,48.858362295]] }}}},
+                                             { "$group": {"_id": {"$hour": "$photos.dateCreation"}, "photography": { "$sum": 1 } } },
+                                             { "$project" : {"_id":0,"photography": "$photography","hour":{"$concat": [ { "$substr": ["$_id",0,2] }, "", "H" ]}}},
+                                             { "$sort": { "photography": -1}}
+                                         ]
+                             }'
+                           >Trouver l'heure de la jourrnée preferé pour visiter les lieux entre Avenue des Champs Elysées, Arc de Triomphe et la Tour Eiffel.</option>
+                      </select>
+                      <br>
+                    </div>
+                  </form>
+              </div>
+              <div class="card-footer small text-muted"> Table having <b>analyst queries</b> to be executed directly.</div>
           </div>
-        </div>
-        <div class="col-lg-4">
-          <!-- Example Pie Chart Card-->
-          <div class="card mb-3">
-            <div class="card-header">
-              <i class="fa fa-pie-chart"></i> Pie Chart Example</div>
-            <div class="card-body">
-              <canvas id="myPieChart" width="100%" height="100"></canvas>
-            </div>
-            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-          </div>
-        </div>
+
+          <!-- results of the query here-->
+          <% if(queried==1){ %>
+              <br>
+              <hr class="sep">
+              <% if(error!=null){%>
+                <h6><font color="red"> <%= error %></font> <h6>
+              <% }%>
+              <div class="card mb-3">
+               <div class="card-header"><i class="fa fa-table"></i> RESULTS</div>
+               <div class="card-body">
+                 <div class="table-responsive">
+                   <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                     <thead>
+                           <tr>
+                             <% var newkeys= [] %>
+                             <% if(result.length!= 0) newkeys = Object.keys(result[0]); %>
+                             <% for(var i=0; i < newkeys.length; i++){ %>
+                                   <th><%= newkeys[i] %></th>
+                             <% } %>
+                           </tr>
+                     </thead>
+                     <tfoot>
+                       <tr>
+                         <% for(var i=0; i < newkeys.length; i++){ %>
+                               <th><%= newkeys[i] %></th>
+                         <% } %>
+                       </tr>
+                     </tfoot>
+                     <tbody>
+                        <% for(var i=0; i < result.length; i++) { %>
+                              <tr>
+                              <% for(var j=0; j < newkeys.length; j++){ %>
+                                    <td><%= result[i][newkeys[j]] %></td>
+                              <% } %>
+                             </tr>
+                       <%} %>
+                     </tbody>
+                   </table>
+                 </div>
+               </div>
+               <div class="card-footer small text-muted">We found <%= result.length %> results for your query.</div>
+              </div>
+
+             <% if( Object.keys(plot) != 0 ){ %>
+             <div class="card mb-3">
+               <div class="card-header"><i class="fa fa-bar-chart"></i> RESULT PLOT</div>
+               <div class="card-body"><canvas id="myChart" width="100" height="50"></canvas></div>
+               <div class="card-footer small text-muted">DataViz of the query you asked for</div>
+             </div>
+             <!--chart -->
+             <script type="text/javascript">
+               Chart.defaults.global.defaultFontFamily='-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',Chart.defaults.global.defaultFontColor="#292b2c";
+               if(document.getElementById("myChart") != null ){
+                 var ctx=document.getElementById("myChart");
+                 if(<%-plot['type'] == "line"%>) ctx.height=30;
+                 var myLineChart=new Chart(ctx,{
+                     type:"<%-plot['type']%>",
+                     data:{
+                     labels: <%-JSON.stringify(plot['labels'])%>,
+                     datasets:[
+                       {
+                         label:"<%-plot['label']%>",
+                         backgroundColor:"rgba(2,117,216,0.5)",
+                         borderColor:"rgba(2,117,216,1)",
+                         pointRadius:5,
+                         pointBackgroundColor:"rgba(2,117,216,1)",
+                         pointBorderColor:"rgba(255,255,255,0.8)",
+                         pointHoverRadius:5,
+                         pointHoverBackgroundColor:"rgba(2,117,216,1)",
+                         pointHitRadius:20,
+                         pointBorderWidth:2,
+                         data:<%-JSON.stringify(plot['data'])%>
+                      }
+                    ]
+                   },
+                   options:{
+                     scales:{
+                       xAxes:[{gridLines:{display:!1}}],
+                       yAxes:[{ticks:{min:0},gridLines:{display:!0,color:"rgba(0, 0, 0, .125)"}}]
+                     },
+                     legend:{display:!1}
+                   }
+                 })
+               }
+             </script>
+             <%}%>
+
+             <form action="/json" method="post" id="thiForm">
+               <div class="col text-center">
+                   <button type="submit" class="btn btn-block btn-basic">Get JSON object</button>
+               </div>
+             </form>
+            <br>
+          <% }%>
       </div>
-    </div>
+     </div>
     <!-- /.container-fluid-->
     <!-- /.content-wrapper-->
     <footer class="sticky-footer">
@@ -110,13 +260,57 @@
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-    <!-- Page level plugin JavaScript-->
-    <script src="vendor/chart.js/Chart.min.js"></script>
     <!-- Custom scripts for all pages-->
     <script src="js/style.min.js"></script>
+    <!-- Page level plugin JavaScript-->
+    <script src="vendor/datatables/jquery.dataTables.js"></script>
+    <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
     <!-- Custom scripts for this page-->
-    <script src="js/charts.min.js"></script>
-
+    <script src="js/datatables.min.js"></script>
+    <!-- gif -->
+    <script>
+    function load(){
+      if(loading.style.display  == "none"){
+          $("#content").hide();
+          $("#loading").show();
+      }
+      else{
+        $("#loading").hide();
+        $("#content").show();
+      }
+    }
+    function waitFunction(){
+         var start = new Date().getTime();
+         var parentOfImg = document.getElementById('loading');
+         if($("#loading > img").length == 0){
+           var img = document.createElement("img");
+           img.src = "images/source.gif";
+           img.style ="margin-left: auto;margin-right: auto; display: block; vertical-align:middle;";
+           parentOfImg.appendChild(img);
+           setTimeout( function(){
+               $("#loading").empty();
+               img.src = "images/loading.gif";
+               img.style ="width:45%; margin-left: auto;margin-right: auto; display: block;";
+               parentOfImg.appendChild(img);
+           }, 2000 );
+         }
+     }
+    $("#thiForm").submit(function( event ) {
+      load();
+      waitFunction();
+    });
+    $(document).ready($("#secForm").submit(function(){
+      load();
+      waitFunction();
+    }));
+    function submitSec(){
+      $("#secForm").submit();
+    }
+    $('a[href="/"]').click(function(){
+      load();
+      waitFunction();
+    });
+    </script>
   </div>
 </body>
 

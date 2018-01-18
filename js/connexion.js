@@ -86,5 +86,20 @@ module.exports = {
             client.close();
         });
       });
+    },
+    mapreduce: function(map,reduce,callback){
+      MongoClient.connect(url, function(err, client) {
+        if (err) {
+            console.error(err);
+        }
+        var db = client.db('BDD');
+        var collection = db.collection('instagramers');
+        map = eval('(' + map + ')');
+        reduce = eval('(' + reduce + ')');
+        collection.mapReduce(map,reduce,{out: {inline:1}},function(err, docs) {
+          callback(null,docs);
+          client.close();
+        });
+      });
     }
 }

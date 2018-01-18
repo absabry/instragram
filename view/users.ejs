@@ -144,29 +144,153 @@
                   <form action="/users" method="post" id="secForm">
                     <div class="form-group">
                       <label for="query">Prepared queries:</label>
-                      <select class="form-control" name="query" id="query" onchange="submity3m();">
+                      <select class="form-control" name="query" id="query" onchange="submitSec();">
                         <option value=''>None</option>
                         <option value=
-                        '{
-                            "agg":1,
-                            "plot":{"type":"bar","label":"Origine des instagramers","labels":"nationality","data":"count"},
-                            "query": [
-                            {"$group": { "_id": "$nationality", "nb":{"$sum":1}}},
-                            {"$project": {"_id":0,"nationality": "$_id","count":"$nb"}},
-                            {"$sort": { "count": -1}}
-                            ]
-                          }'
-                          >Quelle est l'origine des utilisateurs les plus fréquent sur Paris au mois Juin 2014?</option>
-                          <option value=
                           '{
-                              "agg":1,
-                              "query": [
-                              {"$group": { "_id": "$nationality", "nb":{"$sum":1}}},
-                              {"$project": {"_id":0,"nationality": "$_id","count":"$nb"}},
-                              {"$sort": { "count": -1}}
-                              ]
+                              "type":"agg",
+                              "plot":{"type":"bar","label":"Instagramers origin","labels":"nationality","data":"count"},
+                              "countdoc" : 1,
+                              "query":  [
+                                            { "$group": { "_id": "$nationality", "count":{"$sum":1}}},
+                                            { "$project": {
+                                                "_id":0,
+                                                "nationality": "$_id",
+                                                "count": 1,
+                                                "percentage": {
+                                                    "$concat": [ { "$substr": [ { "$multiply": [ { "$divide": [ "$count", {"$literal": "countdoc" }] }, 100 ] }, 0,5] }, "", "%" ]}
+                                                }
+                                            },
+                                            { "$sort": { "count": -1}}
+                                        ]
                             }'
-                            >Quelle est l'origine des utilisateurs les plus fréquent sur Paris au mois Juin 2014? Without chart</option>
+                          >Quelle est l'origine des utilisateurs les plus fréquent sur Paris au mois Juin 2014?</option>
+                        <option value=
+                          '{
+                              "type":"agg",
+                              "plot":{"type":"line","label":"Number of photographies","labels":"day","data":"nbPhotography"},
+                              "query":  [
+                                          { "$geoNear": {"near": { "type": "Point", "coordinates": [2.294576168, 48.858362295]},"distanceField": "dist.calculated","maxDistance": 10,"spherical": true}},
+                                          { "$unwind": "$photos"},
+                                          { "$group": {"_id": { "$dayOfMonth": "$photos.dateCreation"}, "photography": { "$sum": 1 } } },
+                                          { "$sort": { "_id": 1}},
+                                          { "$project": {"_id":0,"day":{"$concat": [ { "$substr": ["$_id",0,2] }, "-", "06" ]} , "nbPhotography": "$photography" }}
+                                        ]
+                            }'
+                          >Combien d'utilisateurs visitent la Tour Eiffel tous les jours ? Donnez une proportion sur les journées.</option>
+                        <option value=
+                          '{
+                              "type":"find",
+                              "query":{
+                                  "query": { "$and" : [ {"historique.name":{ "$regex" : "Arc de Triomphe","$options" : "i"}},
+                                					 {"historique.name":{ "$regex" : "Place du Trocadéro","$options" : "i"}}
+                                				               ]},
+                                "project": {"_id":0,"idUser":1,"historique":1}
+                              }
+                            }'
+                          >Les utilisateurs ont déjà visité l'Arc de Triomphe ET la place du Troacdéro.</option>
+                        <option value=
+                            '{
+                                "type":"agg",
+                                "plot":{"type":"horizontalBar","label":"number of photographies","labels":"nationality","data":"nbPhotography"},
+                                "query":  [
+                                            { "$geoNear": {"near": { "type": "Point", "coordinates":[2.335817814, 48.860959845]},"distanceField": "dist.calculated","maxDistance": 10,"spherical": true}},
+                                            { "$unwind": "$photos"},
+                                            { "$group": {"_id":"$nationality", "photography":{"$sum": 1}}},
+                                            { "$project": {"_id":0,"nationality":"$_id", "nbPhotography": "$photography" }},
+                                            { "$sort": { "nbPhotography": -1}}
+                                          ]
+                              }'
+                         >Qui visite Le Louvre le plus souvent ? Regroupez les résultats par nationalité.</option>
+                        <option value=
+                             '{
+                                 "type":"agg",
+                                 "plot":{"type":"horizontalBar","label":"Average rate","labels":"lieu","data":"moy_rate"},
+                                 "query":  [
+                                              {"$unwind": "$photos"},
+                                              {"$match": { "$or":[ {"photos.type": { "$regex" : "food","$options" : "i"}},{"photos.type": { "$regex" : "restaurant","$options" : "i"}},{"photos.type": { "$regex" : "meal_delivery","$options" : "i"}},{"photos.type": { "$regex" : "cafe","$options" : "i"}}]}},
+                                              {"$group": {"_id":"$photos.name", "moy_avg":{"$avg": "$photos.rating"}, "count":{"$sum":1}}},
+                                              {"$match": {"count":{ "$gt": 100 }}},
+                                              { "$project": {"_id":0,"lieu":"$_id", "moy_rate": "$moy_avg", "count_photos": "$count" }},
+                                              { "$sort": { "moy_rate": -1}}
+                                           ]
+                               }'
+                         >Trouver les lieux de type "food" ou "cafe" ou "restaurant" ou "meal_delivery"  les mieux notés de Paris.</option>
+                        <option value=
+                             '{
+                                 "type":"agg",
+                                 "plot":{"type":"bar","label":"Number of UK visited this type","labels":"type","data":"count"},
+                                 "query":  [
+                                              {"$match":{"nationality":"United Kingdom"}},
+                                              {"$unwind": "$photos"},
+                                              {"$unwind": "$photos.type"},
+                                              {"$group": {"_id":"$photos.type", "count":{"$sum":1}}},
+                                              { "$project": {"_id":0,"type":"$_id", "count": "$count" }},
+                                              { "$sort": { "count": -1}}
+                                           ]
+                               }'
+                          >Donner le type de lieu où les anglais aiment le plus souvent poster sur Instagram.</option>
+                        <option value=
+                               '{
+                                   "type":"agg",
+                                   "plot":{"type":"bar","label":"Average of visited countries","labels":"nationality","data":"avg_cntry_visites"},
+                                   "query":  [
+                                                {"$group": {"_id":"$nationality", "moy_pays":{"$avg":"$nbPays"},"count":{"$sum":1}}},
+                                                { "$project": {"_id":0,"nationality":"$_id", "avg_cntry_visites": "$moy_pays","nbOfPeople": "$count" }},
+                                                { "$sort": { "avg_cntry_visites": -1}}
+                                             ]
+                                 }'
+                            >Calculer les moyennes de pays visités par nationalité.</option>
+                        <option value=
+                                 '{
+                                     "type":"agg",
+                                     "plot":{"type":"bar","label":"Average using of instagram","labels":"nationality","data":"avg_use_per_user"},
+                                     "query":  [
+                                                  {"$group": {"_id":"$nationality", "avg_use":{"$avg":"$nbTotalImages"},"count":{"$sum":1}}},
+                                                  {"$project": {"_id":0,"nationality":"$_id", "avg_use_per_user": "$avg_use","nbUsers":"$count"}},
+                                                  {"$sort": { "avg_use_per_user": -1}}
+                                               ]
+                                   }'
+                              >Calculer la moyenne d'utilisation d'instagram de chaque nationliaté.</option>
+                        <option value=
+                                   '{
+                                       "type":"agg",
+                                       "plot":{"type":"line","label":"Number of photographies","labels":"day","data":"nbPhotography"},
+                                       "query":  [
+                                                    { "$match":{"nationality":"United States"}},
+                                                    { "$unwind": "$photos"},
+                                                    { "$group": {"_id": { "$dayOfWeek": "$photos.dateCreation"}, "photography": { "$sum": 1 } } },
+                                                    { "$sort": { "_id": 1}},
+                                                    { "$project" : {"_id":0,"nbPhotography": "$photography", "day": {"$cond" : [{"$eq" : [ 1,"$_id"]},"Dimanche",
+                                                             {"$cond" : [{"$eq" : [2,"$_id"]},"Lundi",
+                                                             {"$cond" : [{"$eq" : [3,"$_id"]},"Mardi",
+                                                             {"$cond" : [{"$eq" : [4,"$_id"]},"Mercredi",
+                                                             {"$cond" : [{"$eq" : [5,"$_id"]},"Jeudi",
+                                                             {"$cond" : [{ "$eq" : [ 6,"$_id"]},"Vendredi",
+                                                             "Samedi"]}]}]}]}]}]}
+                                                    }}
+                                                 ]
+                                     }'
+                                >Trouver le jour de la semaine preferé des Americains.</option>
+                        <option value=
+                                     '{
+                                         "type":"agg",
+                                         "query":  [
+                                                      {"$unwind": "$photos"},
+                                                      { "$group": {"_id": {"day":{ "$dayOfWeek": "$photos.dateCreation"},"hour":{"$hour": "$photos.dateCreation"}}, "photography": { "$sum": 1 } } },
+                                                      { "$project" : {"_id":0,"nbPhotography": "$photography","hour":{"$concat": [ { "$substr": ["$_id.hour",0,2] }, "", "H" ]},
+                                                         "day": {"$cond" : [{"$eq" : [ 1,"$_id.day"]},"Dimanche",
+                                                               {"$cond" : [{"$eq" : [2,"$_id.day"]},"Lundi",
+                                                               {"$cond" : [{"$eq" : [3,"$_id.day"]},"Mardi",
+                                                               {"$cond" : [{"$eq" : [4,"$_id.day"]},"Mercredi",
+                                                               {"$cond" : [{"$eq" : [5,"$_id.day"]},"Jeudi",
+                                                               {"$cond" : [{ "$eq" : [ 6,"$_id.day"]},"Vendredi",
+                                                               "Samedi"]}]}]}]}]}]}
+                                                      }},
+                                                      { "$sort": { "nbPhotography": -1}}
+                                                   ]
+                                       }'
+                                  >Trouver le couple (heure, jour de la semaine) préferé des instagramers.</option>
                       </select>
                       <br>
                     </div>
@@ -234,6 +358,7 @@
                </div>
                <div class="card-footer small text-muted">We found <%= result.length %> results for your query.</div>
              </div>
+
              <!-- Example Bar Chart Card-->
              <% if( Object.keys(plot) != 0 ){ %>
              <div class="card mb-3">
@@ -244,31 +369,42 @@
                </div>
                <div class="card-footer small text-muted">DataViz of the query you asked for</div>
              </div>
+             <!--chart -->
              <script type="text/javascript">
+               Chart.defaults.global.defaultFontFamily='-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',Chart.defaults.global.defaultFontColor="#292b2c";
                if(document.getElementById("myChart") != null ){
-               var ctx=document.getElementById("myChart");
-               var myLineChart=new Chart(ctx,{
-                   type:"<%-plot['type']%>",
-                   data:{
-                   labels: <%-JSON.stringify(plot['labels'])%>,
-                   datasets:[
-                     {
-                       label:"<%-plot['label']%>",
-                       backgroundColor:"rgba(2,117,216,1)",
-                       borderColor:"rgba(2,117,216,1)",
-                       data:<%-JSON.stringify(plot['data'])%>
-                   }
-                  ]
-                 },
-                 options:{
-                   scales:{
-                     xAxes:[{gridLines:{display:!1}}],
-                     yAxes:[{ticks:{min:0},gridLines:{display:!0}}]
+                 var ctx=document.getElementById("myChart");
+                 if(<%-plot['type'] == "line"%>) ctx.height=30;
+                 var myLineChart=new Chart(ctx,{
+                     type:"<%-plot['type']%>",
+                     data:{
+                     labels: <%-JSON.stringify(plot['labels'])%>,
+                     datasets:[
+                       {
+                         label:"<%-plot['label']%>",
+                         backgroundColor:"rgba(2,117,216,0.5)",
+                         borderColor:"rgba(2,117,216,1)",
+                         pointRadius:5,
+                         pointBackgroundColor:"rgba(2,117,216,1)",
+                         pointBorderColor:"rgba(255,255,255,0.8)",
+                         pointHoverRadius:5,
+                         pointHoverBackgroundColor:"rgba(2,117,216,1)",
+                         pointHitRadius:20,
+                         pointBorderWidth:2,
+                         data:<%-JSON.stringify(plot['data'])%>
+                      }
+                    ]
                    },
-                   legend:{display:!1}
-                 }
-               })
-             }</script>
+                   options:{
+                     scales:{
+                       xAxes:[{gridLines:{display:!1}}],
+                       yAxes:[{ticks:{min:0},gridLines:{display:!0,color:"rgba(0, 0, 0, .125)"}}]
+                     },
+                     legend:{display:!1}
+                   }
+                 })
+               }
+             </script>
              <%}%>
 
              <form action="/json" method="post" id="thiForm">
@@ -340,16 +476,14 @@
       load();
       waitFunction();
     }));
-    function submity3m(){
+    function submitSec(){
       $("#secForm").submit();
     }
     $('a[href="/"]').click(function(){
       load();
       waitFunction();
     });
-
     </script>
-    <script src="vendor/chart.js/Chart.min.js"></script>
   </div>
 </body>
 

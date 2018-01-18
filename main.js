@@ -33,7 +33,7 @@ app.post('/json',function (req,res){ // json results only (without any css)
 })
 
 app.get('/analyst', (req, res) => {
-    res.render(__dirname + '\\view\\analyst');
+    res.render(__dirname + '\\view\\analyst',{queried:0,result:[],plot:{},photos:false,error:null});
 });
 
 app.get('/users', (req, res) => {
@@ -53,7 +53,6 @@ app.get('/', (req, res) => {
 
 app.post("/", function (req, res) {
     if(req.body.beforeTreatement != undefined){
-      console.log("in the first post (actually it's the get)");
       if(status == "down" || Object.keys(stats).length !=2){
         stats["nbUserQuery"] = nbUserQuery;
         stats["nbAnalystQuery"]= nbAnalystQuery;
@@ -66,7 +65,6 @@ app.post("/", function (req, res) {
       }
     }
     else{
-      console.log("in the second post (actually it's the post)");
       var recreate = false;
       if(!fs.existsSync("C:\\data") || !fs.existsSync("C:\\data\\db")){
           exec("mkdir C:\\data\\db");
@@ -97,9 +95,14 @@ app.post("/", function (req, res) {
 });
 
 app.post("/users", function (req, res) {
-    if(req.body.query !== undefined && req.body.query!="") predefinedQuery(req,res);
+    if(req.body.query !== undefined && req.body.query!="")  predefinedQuery(req,res,"users");
     else filterQuery(req,res);
 });
+
+app.post("/analyst", function (req, res) {
+    predefinedQuery(req,res,"analyst");
+});
+
 
 // import database
 function downloadAddDB(req,pathJson){
@@ -200,11 +203,17 @@ function contains(array, element) {
 }
 
 // dropdown queries
-function predefinedQuery(req,res){
-    nbUserQuery["defined"] +=1;
+function predefinedQuery(req,res,page){
+    if(page =="users"){
+          nbUserQuery["defined"] +=1;
+    }
+    else{
+      nbAnalystQuery+=1;
+    }
+
     var query = JSON.parse(req.body.query)
 
-    if(query.agg==1){
+    if(query.type=="agg"){
       if(query.hasOwnProperty("countdoc")){
           connexion.find("{}",null,function(err,data){
               var count  = data.length;
@@ -213,7 +222,7 @@ function predefinedQuery(req,res){
               connexion.aggregate(JSON.parse(queryText),function(err,data){
                   result=data;
                   var plot = createPlot(query);
-                  res.render(__dirname + '\\view\\users',{queried:1,result:result,plot:plot,photos:false,error:null});
+                  res.render(__dirname + '\\view\\'+page,{queried:1,result:result,plot:plot,photos:false,error:null});
               })
         })
       }
@@ -221,14 +230,24 @@ function predefinedQuery(req,res){
           connexion.aggregate(query["query"],function(err,data){
               result=data;
               var plot = createPlot(query);
-              res.render(__dirname + '\\view\\users',{queried:1,result:result,plot:plot,photos:false,error:null});
+              res.render(__dirname + '\\view\\'+page,{queried:1,result:result,plot:plot,photos:false,error:null});
           })
       }
     }
-    else{
-        connexion.find(JSON.stringify(result),null,function(err,data){
+    else if(query.type=="find"){
+        connexion.find(JSON.stringify(query["query"]),null,function(err,data){
+            keys=[]
             result=data;
-            res.render(__dirname + '\\view\\result',{agg:0,result:result});
+            if(result.length!= 0) keys = Object.keys(result[0]);
+            newResult = flattenResponse(keys,result);
+            res.render(__dirname + '\\view\\'+page,{queried:1,result:newResult,plot:{},photos:contains(keys,"photos") ,error:null});
+        })
+    }
+    else if(query.type=="mapreduce"){
+        connexion.mapreduce(query["query"]["map"],query["query"]["reduce"],function(err,data){
+          result=data;
+          console.log(result);
+          res.render(__dirname + '\\view\\'+page,{queried:1,result:result,plot:{},photos:false,error:null});
         })
     }
 }
@@ -259,9 +278,7 @@ function filterQuery(req,res){
           keys=[]
           result=data;
           if(result.length!= 0) keys = Object.keys(result[0]);
-          //if(result.length!=0)console.log("example result:\n"+JSON.stringify(result[0],null,4));
           newResult = flattenResponse(keys,result);
-          //if(newResult.length!=0)console.log("example new result:\n"+JSON.stringify(newResult[0],null,4));
           res.render(__dirname + '\\view\\users',{queried:1,result:newResult,plot:{},photos:contains(keys,"photos") ,error:null});
       })
     }
