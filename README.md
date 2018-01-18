@@ -44,9 +44,6 @@ PS : if you forgot to check the box, the database wont be downloaded and importe
 Then, you can see that mongodb is launched, but you have to wait for the downloaded database and the import phase.
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/1_cmdafter.PNG)
 
-Then, you can see that mongodb is launched, but you have to wait for the downloaded database and the import phase.
-![alt tag](https://github.com/absabry/instragram/blob/master/images/1_cmdafter.PNG)
-
 Finally, you will have a message on the command line teeling you that all process are good 
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/1_finally.PNG)
 
@@ -73,7 +70,7 @@ After you're connected, you will have three differents views:
 
 ##### Admin view 
 You will have some statistics on the database 
-![alt tag](https://github.com/absabry/instragram/blob/master/images/afterConnected.JPG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/afterconnected.PNG)
 
 ##### Users view 
 You will have two different ways to query the database. The first one is to filter users directly using a simple 
@@ -89,7 +86,7 @@ The results can be shown in a chart after this table for some queries
 If there are no results, that table will be empty 
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/no%20result.PNG)
 You also have a button in the bottom of the page to get the json object we got from the query you asked for. 
-![alt tag](https://github.com/absabry/instragram/blob/master/images/get json.JPG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/get%20%json.JPG)
 
 The json will be like : 
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/json.PNG)
