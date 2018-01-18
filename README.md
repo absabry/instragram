@@ -25,7 +25,7 @@ Enter your repo where you downloaded the mongodb server, more precisely the "bin
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/connexion.PNG)
 
 And then you can see that the mongodb is currently running!
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/mongod.PNG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/mongod.PNG)
 
 You have three options in this step : 
 
@@ -33,35 +33,35 @@ You have three options in this step :
 If it's the first time to use this application, you need to download the database and import it to mongodb. We do it for you! 
 All you have to do is following those steps : 
 Launch the mongodb with a consequent waiting time (5 seconds in my case)
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/1_node.PNG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/1_node.PNG)
 
 Then, you have to check the box, and enter the path to your bin folder
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/1_path.PNG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/1_path.PNG)
 
 Then, you can see that mongodb is launched, but you have to wait for the downloaded database and the import phase.
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/1_cmdafter.PNG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/1_cmdafter.PNG)
 
 Then, you can see that mongodb is launched, but you have to wait for the downloaded database and the import phase.
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/1_cmdafter.PNG.PNG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/1_cmdafter.PNG.PNG)
 
 Finally, you will have a message on the command line teeling you that all process are good 
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/1_finally.PNG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/1_finally.PNG)
 
 #### By the way, you have to ask for the creation of the database! if you don’t check the box at least one time, the database will be empty and there won’t be any results!) ####
 
 
 ##### Second one:
 You  already had the database in the mongodb server, you just need a simple connexion to it : 
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/2.PNG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/2.PNG)
 
 To do this, you shouldn't check the box 
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/2_path.PNG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/2_path.PNG)
 
 
 ##### Third one: 
 Finally, it the database is already exoprted, and the mongod.exe is already running, you may run the application 
 in this way : 
-![alt tag](https://github.com/absabry/mongodb/blob/master/images/3.PNG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/3.PNG)
 #### Second step
 
 You have a query form, where you can search for articles you want with your criteria.
