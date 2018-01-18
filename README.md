@@ -97,6 +97,6 @@ The json will be like :
 
 ##### Analyst view 
 The analyst view is exatcly like the users view, but the query are more heavy and may not be exectued any time. 
-![alt tag](https://github.com/absabry/instragram/blob/master/images/analystechoice.png)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/analystchoice.png)
 
 
