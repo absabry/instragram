@@ -62,7 +62,7 @@
     <div class="container-fluid">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Charts</li>
+        <li class="breadcrumb-item active">Anlyst</li>
       </ol>
       <div id="loading" style="display:none; width:100%; height:100%"></div>
       <div id="content">
@@ -88,7 +88,7 @@
                                             { "$sort": { "nbPhotography": -1}}
                                         ]
                             }'
-                          >Trouver les utilisateurs les plus fréquent dans cette zone.</option>
+                          >Find recurrent instagramers between Tour Eiffel, Arc de Triomphe and Champs Elysees.</option>
                         <option value=
                           '{
                               "type":"agg",
@@ -101,7 +101,7 @@
                                           { "$project": {"_id":0,"day":{"$concat": [ { "$substr": ["$_id.day",0,2] }, "/", "06" ]},"hour":{"$concat": [ { "$substr": ["$_id.hour",0,2] }, "", "H" ]}, "nbPhotography": "$photography" }}
                                         ]
                             }'
-                          >Montrer l'évolution de la visite de l'Avenue des Champs Elysées durant le mois..</option>
+                          >Show the evolution of the visit of the Avenue des Champs Elysées during the month.</option>
                         <option value=
                           '{
                               "type":"mapreduce",
@@ -110,7 +110,7 @@
                                 "reduce":"function (key, values) {return Array.sum(values);}"
                               }
                             }'
-                         >Analyser les utilisateurs, pour donner une préférence de type de lieu a chaque nationalité.</option>
+                         >Analyze users, to give a preference of type of place to each nationality.</option>
                         <option value=
                           '{
                               "type":"mapreduce",
@@ -119,7 +119,7 @@
                                 "reduce":"function (key, values) {var types=[];for(var i=0;i<values.length;i++){for(var j=0;j< values[i].types.length; j++){var type = values[i].types[j];if (!Array.contains(types,type)) {types.push(type);}}}return {\"types\":types};}"
                               }
                           }'
-                         >Donner tous les type de lieux visités par nationalité.</option>
+                         >Find all types of places visited by nationality.</option>
                         <option value=
                            '{
                                "type":"mapreduce",
@@ -128,7 +128,7 @@
                                  "reduce":"function(key,values){var lieux=[];for(var i=0;i<values.length;i++){for(var j=0;j< values[i].lieux.length; j++){var lieu = values[i].lieux[j];if (!Array.contains(lieux,lieu)) {lieux.push(lieu);}}}return {\"lieux\":lieux};}"
                                }
                            }'
-                         >Sortir les lieux distinct visités de la base actuelle. (Requête très lourde pour l'application et peut depasser le temps d'attente limite)</option>
+                         >Take out the separate places visited from the current base. (Query very heavy for the application and may exceed the waiting time limit)</option>
                         <option value=
                            '{
                                "type":"agg",
@@ -141,7 +141,7 @@
                                              { "$project" : {"_id":0,"photography": "$photography","hour":{"$concat": [ { "$substr": ["$_id",0,2] }, "", "H" ]}}}
                                          ]
                              }'
-                           >Trouver l'heure de la jourrnée preferé pour visiter les lieux entre Avenue des Champs Elysées, Arc de Triomphe et la Tour Eiffel.</option>
+                           >Find the time of day to visit the places between Avenue des Champs Elysees, Arc de Triomphe and the Eiffel Tower.</option>
                       </select>
                       <br>
                     </div>
