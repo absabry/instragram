@@ -86,7 +86,7 @@ The results can be shown in a chart after this table for some queries
 If there are no results, that table will be empty 
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/no%20result.PNG)
 You also have a button in the bottom of the page to get the json object we got from the query you asked for. 
-![alt tag](https://github.com/absabry/instragram/blob/master/images/get%20json.JPG)
+![alt tag](https://github.com/absabry/instragram/blob/master/images/get%20json.PNG)
 
 The json will be like : 
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/json.PNG)
