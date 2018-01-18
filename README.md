@@ -14,7 +14,7 @@ To use this application you need to install some packages :
 - system-sleep
 
 You can use this line on your commande line (from your main repository) to add all packages you need :+1: :
-> _npm install express ejs body-parser request path child_process fs mongodb adm-zip system-sleep _
+> _npm install express ejs body-parser request path child_process fs mongodb adm-zip system-sleep_
 
 To use this application you should install mongodb server. You can download it from http://www.mongodb.org/downloads and you should install node js also https://nodejs.org/en/download/. Think to define it in environment variable for easiest manipulation!
 
