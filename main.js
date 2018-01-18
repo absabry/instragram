@@ -75,7 +75,7 @@ app.post("/", function (req, res) {
           exec(command);
           if(req.body.recreate =="on"){
             var pathJson = path.dirname(fs.realpathSync(__filename));
-            downloadAddDB(req,pathJson);
+            downloadAddDB(res,req,pathJson);
             description = "File will be downloded,unzipped and imported to mongodb server in a few moments, check the console for more informations."+
             "You can use this application to extract some informations from our instagram database."
           }
@@ -105,11 +105,11 @@ app.post("/analyst", function (req, res) {
 
 
 // import database
-function downloadAddDB(req,pathJson){
+function downloadAddDB(res,req,pathJson){
   console.log("You asked to download the data, you have to wait a little bit");
   downloadAndUnzip('https://github.com/absabry/instragram/raw/master/database.zip', pathJson)
       .then(function (data) {
-          var command= '\"'+req.body.path +'\\mongoimport.exe\" --db// instagram --collection instagramers --drop --file '+ '\"'+pathJson+'\\instagramers.json'+'\"';
+          var command= '\"'+req.body.path +'\\mongoimport.exe\" --db BDD --collection instagramers --drop --file '+ '\"'+pathJson+'\\instagramers.json'+'\"';
           console.log("File has now been downloaded");
           exec(command);
           console.log("The file has been imported to mongodb database.");
@@ -246,24 +246,55 @@ function predefinedQuery(req,res,page){
     else if(query.type=="mapreduce"){
         connexion.mapreduce(query["query"]["map"],query["query"]["reduce"],function(err,data){
           result=data;
-          console.log(result);
-          res.render(__dirname + '\\view\\'+page,{queried:1,result:result,plot:{},photos:false,error:null});
+          var newResult = [].concat(result);
+          if(typeof newResult[0]._id  === 'object'){
+             var keys = Object.keys(newResult[0]._id);
+              for(var i=0;i<newResult.length;i++){
+                for (var j=0;j<keys.length;j++){
+                    newResult[i][keys[j]] = newResult[i]["_id"][keys[j]];
+                }
+                delete newResult[i]._id;
+              }
+          }
+          if(typeof newResult[0].value  === 'object'){
+             var keys = Object.keys(newResult[0].value);
+              for(var i=0;i<newResult.length;i++){
+                for (var j=0;j<keys.length;j++){
+                    newResult[i][keys[j]] = newResult[i]["value"][keys[j]];
+                }
+                delete newResult[i].value;
+              }
+          }
+          var plot = createPlot(query,newResult);
+          res.render(__dirname + '\\view\\'+page,{queried:1,result:newResult,plot:plot,photos:false,error:null});
         })
     }
 }
 
 // create the array used to plot if needed to
-function createPlot(query){
+function createPlot(query,newResult=null){
+      var usedResult = newResult==null?result:newResult;
       var plot = {};
       if(query.hasOwnProperty('plot')){
         var plotInfos = query["plot"];
         plot["type"]= plotInfos.type;
         plot["label"]= plotInfos.label;
+        var labelsName = []
+        if(plotInfos.labels.indexOf(",")>0){
+            labelsName = plotInfos.labels.split(",");
+        }
+        else{
+          labelsName = [plotInfos.labels];
+        }
         plot["labels"]=[];
         plot["data"]= [];
-        for(var i=0;i<result.length;i++){
-          plot["labels"].push(result[i][plotInfos.labels])
-          plot["data"].push(result[i][plotInfos.data])
+        for(var i=0;i<usedResult.length;i++){
+          var labelName = '';
+          for(var j=0;j<labelsName.length;j++){
+              labelName += usedResult[i][labelsName[j]]+"-";
+          }
+          plot["labels"].push(labelName.substring(0,labelName.length-1));
+          plot["data"].push(usedResult[i][plotInfos.data])
         }
       }
       return plot;

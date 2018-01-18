@@ -10,9 +10,7 @@
             "name" : "Rue du Nil"
         }
     ],
-    "photos" : [
-
-    ],
+    "photos" : [ ],
     "nbImages" : NumberInt(1),
     "nbTotalImages" : NumberInt(1),
     "nationality" : "France"

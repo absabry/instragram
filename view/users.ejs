@@ -275,9 +275,11 @@
                         <option value=
                                      '{
                                          "type":"agg",
+                                         "plot":{"type":"line","label":"Number of photographies","labels":"day,hour","data":"nbPhotography"},
                                          "query":  [
                                                       {"$unwind": "$photos"},
                                                       { "$group": {"_id": {"day":{ "$dayOfWeek": "$photos.dateCreation"},"hour":{"$hour": "$photos.dateCreation"}}, "photography": { "$sum": 1 } } },
+                                                      { "$sort": { "_id.day": 1,"_id.hour":1}},
                                                       { "$project" : {"_id":0,"nbPhotography": "$photography","hour":{"$concat": [ { "$substr": ["$_id.hour",0,2] }, "", "H" ]},
                                                          "day": {"$cond" : [{"$eq" : [ 1,"$_id.day"]},"Dimanche",
                                                                {"$cond" : [{"$eq" : [2,"$_id.day"]},"Lundi",
@@ -286,8 +288,7 @@
                                                                {"$cond" : [{"$eq" : [5,"$_id.day"]},"Jeudi",
                                                                {"$cond" : [{ "$eq" : [ 6,"$_id.day"]},"Vendredi",
                                                                "Samedi"]}]}]}]}]}]}
-                                                      }},
-                                                      { "$sort": { "nbPhotography": -1}}
+                                                      }}
                                                    ]
                                        }'
                                   >Trouver le couple (heure, jour de la semaine) préferé des instagramers.</option>

@@ -92,6 +92,7 @@
                         <option value=
                           '{
                               "type":"agg",
+                              "plot":{"type":"line","label":"Number of photographies","labels":"day,hour","data":"nbPhotography"},
                               "query":  [
                                           { "$geoNear": {"near": { "type": "Point", "coordinates": [ 2.300607557, 48.872147404]},"distanceField": "dist.calculated","maxDistance": 10,"spherical": true}},
                                           { "$unwind": "$photos"},
@@ -115,7 +116,7 @@
                               "type":"mapreduce",
                               "query": {
                                 "map":"function () { for(var i=0;i<this.photos.length;i++){emit(this.nationality,{\"types\":this.photos[i].type});}}",
-                                "reduce":"function (key, values) {var types=[];for(var i=0;i<values.length;i++){for(var j=0;j< values[i].types.length; j++){var type = values[i].types[j];if (!Array.contains(types,type)) {types.push(type);}}}return {\"types\":types};};"
+                                "reduce":"function (key, values) {var types=[];for(var i=0;i<values.length;i++){for(var j=0;j< values[i].types.length; j++){var type = values[i].types[j];if (!Array.contains(types,type)) {types.push(type);}}}return {\"types\":types};}"
                               }
                           }'
                          >Donner tous les type de lieux visités par nationalité.</option>
@@ -127,16 +128,17 @@
                                  "reduce":"function(key,values){var lieux=[];for(var i=0;i<values.length;i++){for(var j=0;j< values[i].lieux.length; j++){var lieu = values[i].lieux[j];if (!Array.contains(lieux,lieu)) {lieux.push(lieu);}}}return {\"lieux\":lieux};}"
                                }
                            }'
-                         >Sortir les lieux distinct visités de la base actuelle.</option>
+                         >Sortir les lieux distinct visités de la base actuelle. (Requête très lourde pour l'application et peut depasser le temps d'attente limite)</option>
                         <option value=
                            '{
                                "type":"agg",
+                               "plot":{"type":"line","label":"Number of photographies","labels":"hour","data":"photography"},
                                "query":  [
                                              {"$unwind": "$photos"},
                                              {"$match":{"photos.coords": { "$geoWithin": { "$polygon": [[2.294576168,48.858362295],[ 2.300607557, 48.872147404],[2.294994593,48.873825615],[2.294576168,48.858362295]] }}}},
                                              { "$group": {"_id": {"$hour": "$photos.dateCreation"}, "photography": { "$sum": 1 } } },
-                                             { "$project" : {"_id":0,"photography": "$photography","hour":{"$concat": [ { "$substr": ["$_id",0,2] }, "", "H" ]}}},
-                                             { "$sort": { "photography": -1}}
+                                             { "$sort": { "_id": -1}},
+                                             { "$project" : {"_id":0,"photography": "$photography","hour":{"$concat": [ { "$substr": ["$_id",0,2] }, "", "H" ]}}}
                                          ]
                              }'
                            >Trouver l'heure de la jourrnée preferé pour visiter les lieux entre Avenue des Champs Elysées, Arc de Triomphe et la Tour Eiffel.</option>
