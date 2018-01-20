@@ -66,34 +66,42 @@ app.post("/", function (req, res) {
       }
     }
     else{
+      console.log("post");
       var recreate = false;
       if(!fs.existsSync("C:\\data") || !fs.existsSync("C:\\data\\db")){
           exec("mkdir C:\\data\\db");
       }
       if (fs.existsSync(req.body.path+'\\mongod.exe')) {
-          status="up"
           var command="start "+ "\"\"  " + '\"'+req.body.path +'\\mongod.exe\"';
           exec(command);
-          if(req.body.recreate =="on"){
-            var pathJson = path.dirname(fs.realpathSync(__filename));
-            downloadAddDB(res,req,pathJson);
-            description = "File will be downloded,unzipped and imported to mongodb server in a few moments, check the console for more informations."+
-            "You can use this application to extract some informations from our instagram database."
-          }
-          else{
-            description="You can use this application to extract some informations from our instagram database.";
-            console.log("We have to sleep for "+ sleepySeconds +" seconds waiting for the connexion");sleep(sleepySeconds);console.log("we're on again"); // have to sleep to wait for the connexion
-            if(found==true){
-                checkCoordIndex();
-                ComputeStats(res,status,description);
-            }
-            else{
-              res.render(__dirname + '\\view\\index',{get:0,status:status, description:description+"<br> <b> Database not found in MongoDB, please check the box to add it.</b>",stats:stats});
-            }
-          }
+          console.log("We have to sleep for "+ sleepySeconds +" seconds waiting for the connexion");sleep(sleepySeconds);console.log("we're on again"); // have to sleep to wait for the connexion
+          connexion.connected(function(err,data){
+              status = data.status; found = data.colExists;
+              if(err != null){
+                  description = "<i>"+err+"</i>";
+              }
+              if(status=="down"){
+                res.render(__dirname + '\\view\\index',{get:0,status:status, description:description+"<br> <b> Status is still down. You have to increase the time waitin before connnexion...</b>",stats:stats});
+              }
+              else if(req.body.recreate =="on"){
+                var pathJson = path.dirname(fs.realpathSync(__filename));
+                downloadAddDB(res,req,pathJson);
+                description = "File will be downloded,unzipped and imported to mongodb server in a few moments, check the console for more informations."+
+                "You can use this application to extract some informations from our instagram database."
+              }
+              else if(found==true){
+                    description="You can use this application to extract some informations from our instagram database.";
+                    checkCoordIndex();
+                    ComputeStats(res,status,description);
+              }
+              else if(found==false){
+                res.render(__dirname + '\\view\\index',{get:0,status:status, description:"<br> <b> Database not found in MongoDB, please check the box to add it.</b>",stats:stats});
+              }
+
+          })
       }
       else{
-          status="down"
+          status="down"; found = "false";
           description="The mongod.exe file doesn't exist in "+req.body.path+". Please change the location of your moongodb bin repository.";
           res.render(__dirname + '\\view\\index',{get:0,status:status, description:description,stats:[]});
       }
