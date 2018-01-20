@@ -19,7 +19,7 @@ You can use this line on your commande line (from your main repository) to add a
 To use this application you should install mongodb server. You can download it from http://www.mongodb.org/downloads and you should install node js also https://nodejs.org/en/download/. Think to define it in environment variable for easiest manipulation!
 
 ## Steps to use it
-
+Launch the application using the command: node main.js 
 #### First step
 Enter your repo where you downloaded the mongodb server, more precisely the "bin" folder
 ![alt tag](https://github.com/absabry/instragram/blob/master/images/connexion.PNG)
