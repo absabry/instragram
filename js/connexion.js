@@ -28,7 +28,7 @@ module.exports = {
             var db = client.db('BDD');
             var collection = db.collection('instagramers');
             request= JSON.parse(request);
-            if(request.query.hasOwnProperty("photos.dateCreation")){
+            if(request.query != undefined && request.query.hasOwnProperty("photos.dateCreation")){
                 request.query["photos.dateCreation"] = {"$gt":new Date(request.query["photos.dateCreation"])}
             }
             if(sortInfos == null){
