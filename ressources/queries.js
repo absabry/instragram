@@ -1,39 +1,5 @@
 use BDD;
 
-
-//-----------------------------------------------------------------------------------------FILTER FORM------------------------------------------------------------------------------------------//
-db.instagramers.find({
-"Country":"France",
-"nbPays":1,
-"infos.nbTotalImages":2,
-"infos.nbImages":2,
-"historique.name":"Pont Neuf",
-"photos.dateCreation":"2014-06-21 20:14:53",
-"photos.google.vicinity":"Carrousel du Louvre, 99 Rue de Rivoli, Paris",
-"photos.name":"Pont Neuf",
-"photos.longitude":2.341182232,
-"photos.latitude":48.857006997,
-"photos.google.rating":{$gte:3.9},
-"photos.google.type":"food"
-})
-
-// regex working with array too
-db.instagramers.find({
-"photos.google.type":"food"
-})
-// just fooling around to discover
-db.instagramers.find({
-"$and":[{"photos.google.type":{"$regex":"point_of_interest","$options":"i"}},{"photos.google.type":{"$regex":"Food","$options":"i"}}]
-},{"_id":0,"nbPays":1,"infos.nbTotalImages":1,"infos.nbImages":1})
-
-db.instagramers.find({
-"nbPays":2,
-"infos.nbTotalImages":10
-})
-
-db.instagramers.find({"nbPays":2,"infos.nbTotalImages":10},{"_id":0,"idUser":1,"photos.name":1,"photos.idLocation":1})
-
-
 //-----------------------------------------------------------------------------------------QUERIES------------------------------------------------------------------------------------------//
 
 
@@ -143,7 +109,8 @@ db.instagramers.aggregate(
 db.instagramers.aggregate(
 	{"$unwind": "$photos"},
 	{ "$group": {"_id": {"day":{ "$dayOfWeek": "$photos.dateCreation"},"hour":{"$hour": "$photos.dateCreation"}}, "photography": { "$sum": 1 } } },
-	{ "$project" : {"_id":0,"nbPhotography": "$photography","hour":{"$concat": [ { "$substr": ["$_id.hour",0,2] }, "", "H" ]},
+  { "$sort": { "_id.day": 1,"_id.hour":1}},
+  { "$project" : {"_id":0,"nbPhotography": "$photography","hour":{"$concat": [ { "$substr": ["$_id.hour",0,2] }, "", "H" ]},
 	   "day": {"$cond" : [{"$eq" : [ 1,"$_id.day"]},"Dimanche",
           {"$cond" : [{"$eq" : [2,"$_id.day"]},"Lundi",
           {"$cond" : [{"$eq" : [3,"$_id.day"]},"Mardi",
@@ -151,8 +118,7 @@ db.instagramers.aggregate(
           {"$cond" : [{"$eq" : [5,"$_id.day"]},"Jeudi",
           {"$cond" : [{ "$eq" : [ 6,"$_id.day"]},"Vendredi",
           "Samedi"]}]}]}]}]}]}
-	}},
-	{ "$sort": { "nbPhotography": -1}}
+	}}
 )
 
 
@@ -289,30 +255,38 @@ db.instagramers.aggregate(
 
 db.instagramers.distinct('nationality')
 
+
+// mean photos
+db.instagramers.aggregate([
+	{ "$group": {"_id": null, "avg_photos": { "$avg": {"$size": "$photos"} }}},
+	 { "$project": {"_id":0,"avg_per_user": "$avg_photos"}}
+])
+
+// number of photos taken at June 2014 in Paris
+db.instagramers.aggregate([
+	{ "$group": {"_id": null, "count": { "$sum": "$nbImages" }}},
+	 { "$project": {"_id":0,"all_photos_count": "$count"}}
+])
+
+db.instagramers.find({},{"nbImages":1, "_id":0}).sort({"nbImages":-1}).limit(1) // max image per person
+
+// nombre total d'instagramers Paris Juin 2014
+db.instagramers.count();
+
+// mean historique phhotos
+db.instagramers.aggregate([
+	{ "$group": {"_id": null, "avg_hist": { "$avg": {"$size": "$historique"} }}},
+	 { "$project": {"_id":0,"avg_per_user": "$avg_hist"}}
+])
+
+// max historique per person
+db.instagramers.find({},{"nbTotalImages":1, "_id":0}).sort({"nbTotalImages":-1}).limit(1)
+
+
+
+/*
 db.instagramers.getShardDistribution()
 db.adminCommand( { listShards : 1 } )
 db.printShardingStatus()
 db.instagramers.getIndexes()
-
-db.instagramers.find({ "historique" : { $size: 0 }}).count() // having no historique
-db.instagramers.aggregate([
-	{ "$group": {"_id": null, "avg_hist": { "$avg": {"$size": "$historique"} }}},
-	 { "$project": {"_id":0,"avg_per_user": "$avg_hist"}}
-]) // mean historique
-db.instagramers.find({},{"nbTotalImages":1, "_id":0}).sort({"nbTotalImages":-1}).limit(1) // max historique per person
-
-db.instagramers.find({ "photos" : { $size: 0 }}).count() // having no photos
-db.instagramers.aggregate([
-	{ "$group": {"_id": null, "avg_photos": { "$avg": {"$size": "$photos"} }}},
-	 { "$project": {"_id":0,"avg_per_user": "$avg_photos"}}
-]) // mean photos
-db.instagramers.aggregate([
-	{ "$group": {"_id": null, "count": { "$sum": "$nbImages" }}},
-	 { "$project": {"_id":0,"all_photos_count": "$count"}}
-]) // number of photos taken at June 2014 in Paris
-
-db.instagramers.find({},{"nbImages":1, "_id":0}).sort({"nbImages":-1}).limit(1) // max image per person
-db.instagramers.find({ "photos" : { $size: 0 }},{"nbImages":1}).sort({age:+1}).limit(1) // min not null image per person
-
-
-db.instagramers.find({"idUser":647057})
+*/
